@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+  <changeSet id="202501091739072656-1" author="NguyenVanQuynh">
+    <!-- Xóa ràng buộc khóa ngoại trước khi xóa bảng -->
+    <dropForeignKeyConstraint baseTableName="jhi_user_authority" constraintName="fk_authority_name"/>
+    <dropForeignKeyConstraint baseTableName="jhi_user_authority" constraintName="fk_user_id"/>
+
+    <!-- Xóa bảng -->
+    <dropTable tableName="jhi_user_authority"/>
+    <dropTable tableName="jhi_authority"/>
+    <dropTable tableName="jhi_user"/>
+  </changeSet>
+
+  <changeSet id="202501091739072656-2" author="NguyenVanQuynh" context="test">
+    <!-- Xóa bảng chỉ trong môi trường test -->
+    <dropTable tableName="jhi_date_time_wrapper"/>
+  </changeSet>
+</databaseChangeLog>

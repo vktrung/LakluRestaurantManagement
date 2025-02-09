@@ -4,7 +4,7 @@ import com.laklu.management.config.SecurityConfiguration;
 import com.laklu.management.config.SecurityJwtConfiguration;
 import com.laklu.management.config.WebConfigurer;
 import com.laklu.management.management.SecurityMetersService;
-import com.laklu.management.web.rest.AuthenticateController;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -25,7 +25,6 @@ import tech.jhipster.config.JHipsterProperties;
         SecurityConfiguration.class,
         SecurityJwtConfiguration.class,
         SecurityMetersService.class,
-        AuthenticateController.class,
         JwtAuthenticationTestUtils.class,
     }
 )
