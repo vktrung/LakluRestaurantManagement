@@ -4,11 +4,13 @@ import com.laklu.pos.dataObjects.request.TableCreationRequest;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
 import com.laklu.pos.dataObjects.response.ApiResponse;
 import com.laklu.pos.entities.Tables;
+import com.laklu.pos.enums.Status_Table;
 import com.laklu.pos.services.TableService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -63,4 +65,7 @@ public class TableController {
         return ApiResponse.<Void>builder()
                 .build();
     }
+
+
+
 }

@@ -27,7 +27,7 @@ public class TableService {
         Tables table = Tables.builder()
                 .tableNumber(request.getTableNumber())
                 .capacity(request.getCapacity())
-                .status(Status_Table.AVAILABLE.name()) // Mặc định AVAILABLE
+                .status(Status_Table.AVAILABLE) // Mặc định AVAILABLE
                 .build();
 
         return tableRepository.save(table);
@@ -57,6 +57,13 @@ public class TableService {
             if (request.getStatus() != null) {
                 existingTable.setStatus(request.getStatus());
             }
+            return tableRepository.save(existingTable);
+        }).orElseThrow(() -> new RuntimeException("Table not found with id: " + id));
+    }
+
+    public Tables updateTableStatus(Integer id, Status_Table status) {
+        return tableRepository.findById(id).map(existingTable -> {
+            existingTable.setStatus(status);
             return tableRepository.save(existingTable);
         }).orElseThrow(() -> new RuntimeException("Table not found with id: " + id));
     }

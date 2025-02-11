@@ -1,17 +1,17 @@
 package com.laklu.pos.dataObjects.request;
 
-import com.laklu.pos.entities.Tables;
-import com.laklu.pos.enums.Status_Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TableUpdateRequest {
-    String tableNumber;
-    Integer capacity;
-    Status_Table status;
+public class ReservationRequest {
+    String customerName;
+    String customerPhone;
+    List<Integer> tableIds; // Danh sách ID bàn muốn đặt
 }
