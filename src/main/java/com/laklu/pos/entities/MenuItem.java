@@ -1,6 +1,9 @@
 package com.laklu.pos.entities;
 import com.laklu.pos.enums.MenuItemStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,36 +14,38 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Menu {
+public class MenuItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
 
     @Column(nullable = false, length = 255)
+    @NotBlank(message = "Menu name cannot be empty")
     String name;
 
     @Column(columnDefinition = "TEXT")
+    @NotBlank(message = "Menu description cannot be empty")
     String description;
 
     @Column(nullable = false)
+    @Min(value = 1, message = "Menu price must be greater than 0")
     double price;
 
     @Column(nullable = false)
+    @Min(value = 0, message = "Menu quantity cannot be negative")
     int quantity;
 
+    @NotNull(message = "Menu status cannot be null")
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     MenuItemStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
     Categories category;
 
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "DATETIME DEFAULT NOW()")
     LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at", nullable = false, columnDefinition = "DATETIME DEFAULT NOW()")
     LocalDateTime updatedAt = LocalDateTime.now();
 
     public LocalDateTime getUpdatedAt() {

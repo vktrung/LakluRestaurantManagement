@@ -4,10 +4,11 @@ import com.laklu.pos.entities.Categories;
 import com.laklu.pos.repositories.CategoriesRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -19,44 +20,44 @@ public class CategoriesService {
     }
 
     public Categories addCategory(Categories category) {
-        validateCategory(category);
+        if (category.getId() != 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID must not be provided when creating a category");
+        }
         return categoriesRepository.save(category);
     }
+
 
     public List<Categories> getAllCategories() {
         return categoriesRepository.findAll();
     }
 
     public Categories updateCategory(int id, Categories updatedCategory) {
-        validateCategory(updatedCategory);
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID phải lớn hơn 0");
+        }
 
-        return categoriesRepository.findById(id).map(category -> {
-            category.setName(updatedCategory.getName());
-            category.setDescription(updatedCategory.getDescription());
-            category.setUpdatedAt(updatedCategory.getUpdatedAt());
-            return categoriesRepository.save(category);
-        }).orElseThrow(() -> {
-            return new IllegalArgumentException("Category not found with ID: " + id);
-        });
+
+        Categories category = categoriesRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy category với ID: " + id));
+
+        category.setName(updatedCategory.getName());
+        category.setDescription(updatedCategory.getDescription());
+        category.setUpdatedAt(updatedCategory.getUpdatedAt());
+
+        return categoriesRepository.save(category);
     }
 
     public void deleteCategory(int id) {
-        Optional<Categories> category = categoriesRepository.findById(id);
-        if (category.isEmpty()) {
-            throw new IllegalArgumentException("Category not found with ID: " + id);
+        if (id <= 0) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "ID phải lớn hơn 0");
         }
+
+        if (!categoriesRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy category với ID: " + id);
+        }
+
         categoriesRepository.deleteById(id);
     }
 
-    private void validateCategory(Categories category) {
-        if (category == null) {
-            throw new IllegalArgumentException("Category object cannot be null");
-        }
-        if (!StringUtils.hasText(category.getName())) {
-            throw new IllegalArgumentException("Category name cannot be empty");
-        }
-        if (!StringUtils.hasText(category.getDescription())) {
-            throw new IllegalArgumentException("Category description cannot be empty");
-        }
-    }
+
 }
