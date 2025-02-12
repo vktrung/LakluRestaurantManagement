@@ -7,14 +7,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.security.Key;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,44 +28,9 @@ public class JwtGuard {
     @Value("${jwt.expirationTime}")
     private Long expirationTime;
 
-    private final AuthenticationManager authenticationManager;
-
-    public JwtGuard(AuthenticationManager authenticationManager) {
-        this.authenticationManager = authenticationManager;
-    }
-
-    public boolean attempt(UserCredentials credentials) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword())
-        );
-        // TODO : throw exception
-        return authentication.isAuthenticated();
-    }
-
-    public String login(UserCredentials credentials) {
-        if (this.attempt(credentials)) {
-            return this.issueToken(credentials);
-        }
-        return null;
-    }
-
-    private String issueToken(UserCredentials credentials) {
-        Map<String, Object> claims = new HashMap<>();
-        return Jwts.builder()
-                .claims()
-                .add(claims)
-                .subject(credentials.getUsername())
-                .issuedAt(new Date())
-                // TODO: add expiration time to config
-                .expiration(new Date(System.currentTimeMillis() * 60 * 60 * this.expirationTime))
-                .and()
-                .signWith(this.getKey())
-                .compact();
-    }
-
     private SecretKey getKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(this.secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+
+        return Keys.hmacShaKeyFor(this.secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
     public String extractSubject(String token) {
@@ -81,6 +44,10 @@ public class JwtGuard {
 
     public static Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
+    }
+
+    public static boolean isAuthenticated() {
+        return getAuthentication() != null && getAuthentication().isAuthenticated();
     }
 
     public boolean validateToken(String token, UserPrincipal userPrincipal) {
@@ -102,5 +69,19 @@ public class JwtGuard {
 
     public static UserPrincipal userPrincipal() {
         return (UserPrincipal) getAuthentication().getPrincipal();
+    }
+
+    public String issueToken(UserCredentials credentials) {
+        Map<String, Object> claims = new HashMap<>();
+        return Jwts.builder()
+                .claims()
+                .add(claims)
+                .subject(credentials.getUsername())
+                .issuedAt(new Date())
+                // TODO: add expiration time to config
+                .expiration(new Date(System.currentTimeMillis() * 60 * 60 * this.expirationTime))
+                .and()
+                .signWith(this.getKey())
+                .compact();
     }
 }
