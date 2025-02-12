@@ -23,7 +23,6 @@ public class ReservationRequest {
     @Size(min = 10, max = 15, message = "Customer phone must be between 10 and 15 digits")
     String customerPhone;
 
-    @NotNull(message = "Reservation time cannot be null")
     LocalDateTime reservationTime;
 
     @NotEmpty(message = "At least one table must be selected")

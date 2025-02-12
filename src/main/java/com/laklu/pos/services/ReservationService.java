@@ -79,8 +79,6 @@ public class ReservationService {
         Reservations reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
 
-        // Cập nhật thông tin cá nhân nếu có
-        //sau dùng mapstruc sẽ không phải if else đến chết
         if (request.getCustomerName() != null) {
             reservation.setCustomerName(request.getCustomerName());
         }
