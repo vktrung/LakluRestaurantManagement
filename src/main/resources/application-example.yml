@@ -13,3 +13,9 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
 jwt:
   secret:
+  expirationTime: 60
+app-setup:
+  alreadySetup: false
+  adminUsername: admin
+  adminPassword: admin
+  adminEmail: example@gmail.com

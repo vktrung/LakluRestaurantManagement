@@ -2,6 +2,7 @@ package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.NewUser;
 import com.laklu.pos.entities.User;
+import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.UserRepository;
 import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.UsernameMustBeUnique;
@@ -19,16 +20,10 @@ import java.util.function.Function;
 
 @Service
 @AllArgsConstructor
-public class UserService implements UserDetailsService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.getUserByUsername(username).orElseThrow();
-        return new UserPrincipal(user);
-    }
 
     public List<User> getAll() {
         return userRepository.findAll();
@@ -49,5 +44,17 @@ public class UserService implements UserDetailsService {
     // TODO: handle partial update
     public User edit(NewUser user) {
         return null;
+    }
+
+    public Optional<User> findUserById(Integer id) {
+        return userRepository.findById(id);
+    }
+
+    public User findOrFail(Integer id) {
+        return this.findUserById(id).orElseThrow(NotFoundException::new);
+    }
+
+    public void deleteUser(User user) {
+        userRepository.delete(user);
     }
 }

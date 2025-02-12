@@ -1,6 +1,11 @@
 package com.laklu.pos.validator;
 
+import lombok.Data;
+
+@Data
 public abstract class BaseRule implements Rule{
+    
+    private String message;
 
     @Override
     public String field() {

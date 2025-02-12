@@ -31,25 +31,46 @@ public class UserController {
 
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
-        Ultis.throwUnless(userPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());;
+        Ultis.throwUnless(userPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
+        // TODO: add pagination, and res dto
         List<User> users = userService.getAll();
-        // todo: using pagination
+
         return ApiResponseEntity.success(users);
     }
 
     @PostMapping("/")
     public ApiResponseEntity store(@RequestBody @Validated NewUser user) throws Exception {
-        // authorize create user
         Ultis.throwUnless(userPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
-        // validate username must be unique
+
         Function<String, Optional<User>> userResolver = userService::findByUsername;
+
         RuleValidator.validate(new UsernameMustBeUnique(userResolver, user.getUsername()));
 
-        // create user
         User persitedUser = userService.store(user);
 
         return ApiResponseEntity.success(new AuthUserResponse(new UserPrincipal(persitedUser)));
     }
 
+    // TODO: add update user with assign role
 
+    @GetMapping("/{id}")
+    public ApiResponseEntity show(@PathVariable int id) throws Exception {
+        var user = userService.findOrFail(id);
+
+        Ultis.throwUnless(userPolicy.canView(JwtGuard.userPrincipal(), user), new ForbiddenException());
+
+        return ApiResponseEntity.success(new AuthUserResponse(new UserPrincipal(user)));
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ApiResponseEntity delete(@PathVariable int id) throws Exception {
+        var user = userService.findOrFail(id);
+
+        Ultis.throwUnless(userPolicy.canDelete(JwtGuard.userPrincipal(), user), new ForbiddenException());
+
+        userService.deleteUser(user);
+
+        return ApiResponseEntity.success("Xóa người dùng thành công");
+    }
 }

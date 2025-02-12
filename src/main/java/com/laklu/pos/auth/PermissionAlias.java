@@ -3,6 +3,11 @@ package com.laklu.pos.auth;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 @Getter
 public enum PermissionAlias {
@@ -10,7 +15,12 @@ public enum PermissionAlias {
     CREATE_USER("users:create", "Thêm nhân viên"),
     UPDATE_USER("users:update", "Sửa nhân viên"),
     LIST_USER("users:list", "Danh sách nhân viên"),
-    DELETE_USER("users:delete", "Xóa nhân viên");
+    DELETE_USER("users:delete", "Xóa nhân viên"),
+
+    CREATE_ROLE("roles:create", "Thêm nhóm quyền"),
+    UPDATE_ROLE("roles:update", "Sửa nhóm quyền"),
+    LIST_ROLE("roles:list", "Danh sách nhóm quyền"),
+    DELETE_ROLE("roles:delete", "Xóa nhóm quyền");
 
 
     PermissionAlias(String alias, String name) {
