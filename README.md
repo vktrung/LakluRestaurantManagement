@@ -21,3 +21,12 @@
    ```sh
     mvn spring-boot:run
     ```
+5. **Setup permissions:**
+    - Open the `src/main/resources/application.yml` file.
+    - Change the `app-setup.alreadySetup = false`
+    - Run the application
+    - Open the browser and access the URL `http://localhost:8080/api/v1/setup/permissions` to setup permissions.
+    - Open the browser and access the URL `http://localhost:8080/api/v1/setup/super-admin` to setup super-admin account.
+    - Change the `app-setup.alreadySetup = true`
+
+
