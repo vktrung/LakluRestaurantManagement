@@ -1,6 +1,7 @@
 package com.laklu.pos.filters;
 
 import com.laklu.pos.auth.JwtGuard;
+import com.laklu.pos.exceptions.httpExceptions.UnauthorizedException;
 import com.laklu.pos.services.UserService;
 import com.laklu.pos.valueObjects.UserPrincipal;
 import jakarta.servlet.FilterChain;
@@ -23,27 +24,33 @@ public class JwtFilter extends OncePerRequestFilter {
     private final JwtGuard jwtGuard;
     private final UserService userService;
 
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
         String token = null;
         String subject = null;
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            token = authorizationHeader.substring(7);
-            subject = jwtGuard.extractSubject(token);
-        }
-
-        if(subject != null && !JwtGuard.getAuthentication().isAuthenticated()) {
-            UserPrincipal userPrincipal = (UserPrincipal) userService.loadUserByUsername(subject);
-
-            if(jwtGuard.validateToken(token, userPrincipal)) {
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        userPrincipal, null,
-                        userPrincipal.getAuthorities()
-                );
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+        try {
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                token = authorizationHeader.substring(7);
+                subject = jwtGuard.extractSubject(token);
             }
+
+            if (subject != null && !JwtGuard.isAuthenticated()) {
+                UserPrincipal userPrincipal = (UserPrincipal) userService.loadUserByUsername(subject);
+
+                if (jwtGuard.validateToken(token, userPrincipal)) {
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                            userPrincipal, null,
+                            userPrincipal.getAuthorities()
+                    );
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
+            }
+        } catch (Exception exception) {
+            // TODO : add log
+            throw new UnauthorizedException();
         }
 
         filterChain.doFilter(request, response);
