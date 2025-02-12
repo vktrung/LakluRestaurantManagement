@@ -4,11 +4,12 @@ import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
 import com.laklu.pos.entities.Reservations;
 import com.laklu.pos.entities.ReservationTable;
 import com.laklu.pos.entities.Tables;
-import com.laklu.pos.enums.Status_Table;
+import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.dataObjects.request.ReservationRequest;
 import com.laklu.pos.repositories.ReservationRepository;
 import com.laklu.pos.repositories.ReservationTableRepository;
 import com.laklu.pos.repositories.TableRepository;
+import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -16,6 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +31,7 @@ public class ReservationService {
     TableRepository tableRepository;
     ReservationTableRepository reservationTableRepository;
 
+    @Transactional
     public Reservations createReservation(ReservationRequest request) {
         log.info("Creating reservation for customer: {}", request.getCustomerName());
 
@@ -39,20 +44,23 @@ public class ReservationService {
 
         reservation = reservationRepository.save(reservation);
 
+        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
+
+        Map<Integer, Tables> tableMap = tables.stream()
+                .collect(Collectors.toMap(Tables::getId, Function.identity()));
+
         for (Integer tableId : request.getTableIds()) {
-            log.info("Checking table with ID: {}", tableId); // Debug log
+            Tables table = tableMap.get(tableId);
+            if (table == null) {
+                throw new RuntimeException("Table not found with ID: " + tableId);
+            }
+            log.info("able {} found with status: {}", tableId, table.getStatus());
 
-            Tables table = tableRepository.findById(tableId)
-                    .orElseThrow(() -> new RuntimeException(" Table not found with ID: " + tableId));
-
-            log.info(" Table {} found with status: {}", tableId, table.getStatus());
-
-            // Kiểm tra nếu bàn đã bị đặt trước
-            if (table.getStatus() != Status_Table.AVAILABLE) {
-                throw new RuntimeException(" Table " + tableId + " is already reserved.");
+            if (table.getStatus() != StatusTable.AVAILABLE) {
+                throw new RuntimeException("Table " + tableId + " is already reserved.");
             }
 
-            table.setStatus(Status_Table.OCCUPIED);
+            table.setStatus(StatusTable.OCCUPIED);
             tableRepository.save(table);
 
             ReservationTable reservationTable = ReservationTable.builder()
@@ -72,6 +80,7 @@ public class ReservationService {
                 .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
 
         // Cập nhật thông tin cá nhân nếu có
+        //sau dùng mapstruc sẽ không phải if else đến chết
         if (request.getCustomerName() != null) {
             reservation.setCustomerName(request.getCustomerName());
         }
@@ -90,7 +99,7 @@ public class ReservationService {
             List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
             for (ReservationTable rt : oldTables) {
                 Tables table = rt.getTable();
-                table.setStatus(Status_Table.AVAILABLE); // Giải phóng bàn cũ
+                table.setStatus(StatusTable.AVAILABLE); // Giải phóng bàn cũ
                 tableRepository.save(table);
             }
             reservationTableRepository.deleteAll(oldTables); // Xóa bản ghi cũ trong `reservation_table`
@@ -100,11 +109,11 @@ public class ReservationService {
                 Tables newTable = tableRepository.findById(tableId)
                         .orElseThrow(() -> new RuntimeException("Table not found with ID: " + tableId));
 
-                if (newTable.getStatus() != Status_Table.AVAILABLE) {
+                if (newTable.getStatus() != StatusTable.AVAILABLE) {
                     throw new RuntimeException("Table " + tableId + " is already occupied.");
                 }
 
-                newTable.setStatus(Status_Table.OCCUPIED);
+                newTable.setStatus(StatusTable.OCCUPIED);
                 tableRepository.save(newTable);
 
                 ReservationTable newReservationTable = ReservationTable.builder()

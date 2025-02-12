@@ -1,7 +1,7 @@
 package com.laklu.pos.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.laklu.pos.enums.Status_Table;
+import com.laklu.pos.enums.StatusTable;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,7 +29,7 @@ public class Tables {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    Status_Table status;
+    StatusTable status;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     LocalDateTime createdAt;

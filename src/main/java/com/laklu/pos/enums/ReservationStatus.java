@@ -1,6 +1,6 @@
 package com.laklu.pos.enums;
 
-public enum Reservation_Status {
+public enum ReservationStatus {
     PENDING,
     CONFIRMED,
     CANCELLED,

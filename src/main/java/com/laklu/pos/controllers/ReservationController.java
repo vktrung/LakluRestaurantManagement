@@ -4,6 +4,7 @@ import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
 import com.laklu.pos.entities.Reservations;
 import com.laklu.pos.dataObjects.request.ReservationRequest;
 import com.laklu.pos.services.ReservationService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,17 +20,18 @@ public class ReservationController {
     ReservationService reservationService;
 
     @PostMapping
-    public ResponseEntity<Reservations> createReservation(@RequestBody ReservationRequest request) {
-        return ResponseEntity.ok(reservationService.createReservation(request));
+    public Reservations createReservation(@Valid @RequestBody ReservationRequest request) {
+        return reservationService.createReservation(request);
     }
 
+
     @PutMapping("/{id}")
-    public ResponseEntity<Reservations> updateReservation(
+    public Reservations updateReservation(
+            @Valid
             @PathVariable Integer id,
             @RequestBody UpdateReservationRequest request) {
 
-        Reservations updatedReservation = reservationService.updateReservation(id, request);
-        return ResponseEntity.ok(updatedReservation);
+        return reservationService.updateReservation(id, request);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.laklu.pos.enums;
 
-public enum Status_Table {
+public enum StatusTable {
     AVAILABLE,
     RESERVED,
     OCCUPIED,

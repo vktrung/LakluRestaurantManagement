@@ -1,17 +1,23 @@
 package com.laklu.pos.dataObjects.request;
 
-import com.laklu.pos.entities.Tables;
-import com.laklu.pos.enums.Status_Table;
+import jakarta.validation.constraints.*;
+import com.laklu.pos.enums.StatusTable;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
 @Data
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@AllArgsConstructor
 public class TableUpdateRequest {
-    String tableNumber;
-    Integer capacity;
-    Status_Table status;
+
+    @NotBlank(message = "Table number is required") // Không được null hoặc rỗng
+    @Size(max = 50, message = "Table number must not exceed 50 characters") // Giới hạn độ dài
+    private String tableNumber;
+
+    @NotNull(message = "Capacity is required") // Không được null
+    @Min(value = 1, message = "Capacity must be at least 1") // Giá trị tối thiểu là 1
+    @Max(value = 100, message = "Capacity must not exceed 100") // Giới hạn số lượng tối đa
+    private Integer capacity;
+
+    @NotNull(message = "Status is required") // Không được null
+    private StatusTable status;
 }

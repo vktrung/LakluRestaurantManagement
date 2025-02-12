@@ -3,7 +3,7 @@ package com.laklu.pos.services;
 import com.laklu.pos.dataObjects.request.TableCreationRequest;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
 import com.laklu.pos.entities.Tables;
-import com.laklu.pos.enums.Status_Table;
+import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.repositories.TableRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +27,7 @@ public class TableService {
         Tables table = Tables.builder()
                 .tableNumber(request.getTableNumber())
                 .capacity(request.getCapacity())
-                .status(Status_Table.AVAILABLE) // Mặc định AVAILABLE
+                .status(StatusTable.AVAILABLE) // Mặc định AVAILABLE
                 .build();
 
         return tableRepository.save(table);
@@ -61,7 +61,7 @@ public class TableService {
         }).orElseThrow(() -> new RuntimeException("Table not found with id: " + id));
     }
 
-    public Tables updateTableStatus(Integer id, Status_Table status) {
+    public Tables updateTableStatus(Integer id, StatusTable status) {
         return tableRepository.findById(id).map(existingTable -> {
             existingTable.setStatus(status);
             return tableRepository.save(existingTable);
