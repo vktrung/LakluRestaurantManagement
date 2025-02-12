@@ -10,7 +10,7 @@ public class RuleValidator {
             return;
         }
         HashMap<String, String> errors = new HashMap<>();
-        errors.put(businessRule.field(), businessRule.message());
+        errors.put(businessRule.field(), businessRule.getMessage());
         throw new RuleNotValidException(errors);
     }
 }

@@ -16,3 +16,8 @@ spring:
 jwt:
   secret: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
   expirationTime: 60
+app-setup:
+  alreadySetup: false
+  adminUsername: admin
+  adminPassword: admin
+  adminEmail: example@gmail.com

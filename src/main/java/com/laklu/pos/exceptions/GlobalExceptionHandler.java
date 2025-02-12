@@ -21,6 +21,11 @@ public class GlobalExceptionHandler {
         return ApiResponseEntity.exception(e. getStatusCode(), e.getMessage());
     }
 
+    @ExceptionHandler(Exception.class)
+    public ApiResponseEntity handleException(Exception e) {
+        return ApiResponseEntity.exception(HttpStatus.INTERNAL_SERVER_ERROR, e.getCause());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ApiResponseEntity handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         Map<String, String> errors = ex.getBindingResult().getFieldErrors()

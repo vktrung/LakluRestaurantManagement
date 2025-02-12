@@ -5,5 +5,5 @@ public interface Rule {
 
     boolean isValid();
 
-    String message();
+    String getMessage();
 }

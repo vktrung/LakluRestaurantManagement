@@ -23,7 +23,7 @@ public class UsernameMustBeUnique extends BaseRule {
     }
 
     @Override
-    public String message() {
+    public String getMessage() {
         return "Người dùng đã tồn tại";
     }
 }

@@ -4,7 +4,6 @@ import com.laklu.pos.valueObjects.UserCredentials;
 import com.laklu.pos.valueObjects.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;

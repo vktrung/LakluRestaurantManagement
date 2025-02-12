@@ -14,7 +14,7 @@ public class TableMustAvailable extends BaseRule {
     }
 
     @Override
-    public String message() {
+    public String getMessage() {
         return "";
     }
 }
