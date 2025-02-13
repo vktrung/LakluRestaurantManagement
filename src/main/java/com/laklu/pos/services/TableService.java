@@ -1,6 +1,6 @@
 package com.laklu.pos.services;
 
-import com.laklu.pos.dataObjects.request.TableCreationRequest;
+import com.laklu.pos.dataObjects.request.CreateNewTableRequest;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
 import com.laklu.pos.entities.Tables;
 import com.laklu.pos.enums.StatusTable;
@@ -21,7 +21,7 @@ public class TableService {
 
     TableRepository tableRepository;
 
-    public Tables createTable(TableCreationRequest request) {
+    public Tables createTable(CreateNewTableRequest request) {
         log.info("Creating table: {}", request);
 
         Tables table = Tables.builder()
@@ -42,7 +42,7 @@ public class TableService {
 
     public Tables getTableById(Integer id) {
         return tableRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Table not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + id));
     }
 
 
@@ -58,22 +58,27 @@ public class TableService {
                 existingTable.setStatus(request.getStatus());
             }
             return tableRepository.save(existingTable);
-        }).orElseThrow(() -> new RuntimeException("Table not found with id: " + id));
+        }).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + id));
     }
 
     public Tables updateTableStatus(Integer id, StatusTable status) {
         return tableRepository.findById(id).map(existingTable -> {
             existingTable.setStatus(status);
             return tableRepository.save(existingTable);
-        }).orElseThrow(() -> new RuntimeException("Table not found with id: " + id));
+        }).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID " + id));
     }
 
 
 
     public void deleteTable(Integer id) {
-        if (!tableRepository.existsById(id)) {
-            throw new RuntimeException("Table not found with id: " + id);
+        Tables table = tableRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + id));
+
+        if (table.getStatus() == StatusTable.RESERVED || table.getStatus() == StatusTable.OCCUPIED) {
+            throw new RuntimeException("Không thể xóa bàn đang được đặt trước hoặc đang có khách sử dụng.");
         }
+
         tableRepository.deleteById(id);
     }
+
 }

@@ -1,10 +1,8 @@
 package com.laklu.pos.controllers;
 
-import com.laklu.pos.dataObjects.request.TableCreationRequest;
+import com.laklu.pos.dataObjects.request.CreateNewTableRequest;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
-import com.laklu.pos.dataObjects.response.ApiResponse;
 import com.laklu.pos.entities.Tables;
-import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.services.TableService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -26,7 +24,7 @@ public class TableController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Tables createTable(@Valid @RequestBody TableCreationRequest request) {
+    public Tables createTable(@Valid @RequestBody CreateNewTableRequest request) {
         return tableService.createTable(request);
     }
 
@@ -48,16 +46,8 @@ public class TableController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTable(@PathVariable Integer id) {
-        Tables table = tableService.getTableById(id);
-
-        // Kiểm tra nếu bàn đã được đặt trước không cho xoá
-        if (table.getStatus() == StatusTable.RESERVED || table.getStatus() == StatusTable.OCCUPIED) {
-            throw new RuntimeException("Cannot delete table that is currently reserved or occupied.");
-        }
-
         tableService.deleteTable(id);
     }
-
 
 
 

@@ -12,17 +12,18 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateReservationRequest {
-    @NotNull(message = "Customer name cannot be null")
-    @Size(min = 3, max = 100, message = "Customer name must be between 3 and 100 characters")
+
+    @NotNull(message = "Tên khách hàng không được để trống")
+    @Size(min = 3, max = 100, message = "Tên khách hàng phải từ 3 đến 100 ký tự")
     private String customerName;
 
-    @NotNull(message = "Customer phone cannot be null")
-    @Size(min = 10, max = 15, message = "Customer phone must be between 10 and 15 digits")
+    @NotNull(message = "Số điện thoại không được để trống")
+    @Size(min = 10, max = 15, message = "Số điện thoại phải từ 10 đến 15 chữ số")
     private String customerPhone;
 
-    @NotNull(message = "Reservation time cannot be null")
+    @NotNull(message = "Thời gian đặt chỗ không được để trống")
     private LocalDateTime reservationTime;
 
-    @NotEmpty(message = "At least one table must be selected")
+    @NotEmpty(message = "Phải chọn ít nhất một bàn")
     private List<Integer> tableIds;
 }

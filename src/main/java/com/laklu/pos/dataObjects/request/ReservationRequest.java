@@ -15,16 +15,16 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReservationRequest {
-    @NotNull(message = "Customer name cannot be null")
-    @Size(min = 3, max = 100, message = "Customer name must be between 3 and 100 characters")
+    @NotNull(message = "Không được để trống")
+    @Size(min = 3, max = 100, message = "Tên phải nằm trong khoảng từ 3 đến 100 kí tự")
     String customerName;
 
-    @NotNull(message = "Customer phone cannot be null")
-    @Size(min = 10, max = 15, message = "Customer phone must be between 10 and 15 digits")
+    @NotNull(message = "Không được bỏ trống")
+    @Size(min = 10, max = 15, message = "Số điện thoại gồm 10 chữ số")
     String customerPhone;
 
     LocalDateTime reservationTime;
 
-    @NotEmpty(message = "At least one table must be selected")
+    @NotEmpty(message = "Hãy chọn bàn")
     List<Integer> tableIds;
 }

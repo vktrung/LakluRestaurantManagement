@@ -44,21 +44,13 @@ public class ReservationService {
 
         reservation = reservationRepository.save(reservation);
 
-        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
+        List<Tables> tables = validateTables(request.getTableIds());
 
         Map<Integer, Tables> tableMap = tables.stream()
                 .collect(Collectors.toMap(Tables::getId, Function.identity()));
 
         for (Integer tableId : request.getTableIds()) {
             Tables table = tableMap.get(tableId);
-            if (table == null) {
-                throw new RuntimeException("Table not found with ID: " + tableId);
-            }
-            log.info("able {} found with status: {}", tableId, table.getStatus());
-
-            if (table.getStatus() != StatusTable.AVAILABLE) {
-                throw new RuntimeException("Table " + tableId + " is already reserved.");
-            }
 
             table.setStatus(StatusTable.OCCUPIED);
             tableRepository.save(table);
@@ -93,38 +85,58 @@ public class ReservationService {
         if (request.getTableIds() != null && !request.getTableIds().isEmpty()) {
             log.info("Updating tables for reservation ID: {}", reservationId);
 
-            // Xóa các bàn cũ
+            // Giải phóng bàn cũ
             List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
-            for (ReservationTable rt : oldTables) {
-                Tables table = rt.getTable();
-                table.setStatus(StatusTable.AVAILABLE); // Giải phóng bàn cũ
-                tableRepository.save(table);
-            }
-            reservationTableRepository.deleteAll(oldTables); // Xóa bản ghi cũ trong `reservation_table`
+            List<Tables> tablesToRelease = oldTables.stream()
+                    .map(ReservationTable::getTable)
+                    .collect(Collectors.toList());
 
-            // Thêm các bàn mới
-            for (Integer tableId : request.getTableIds()) {
-                Tables newTable = tableRepository.findById(tableId)
-                        .orElseThrow(() -> new RuntimeException("Table not found with ID: " + tableId));
+            tablesToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
+            tableRepository.saveAll(tablesToRelease);
+            reservationTableRepository.deleteAll(oldTables);
 
-                if (newTable.getStatus() != StatusTable.AVAILABLE) {
-                    throw new RuntimeException("Table " + tableId + " is already occupied.");
-                }
+            // Kiểm tra bàn mới
+            List<Tables> newTables = validateTables(request.getTableIds());
 
-                newTable.setStatus(StatusTable.OCCUPIED);
-                tableRepository.save(newTable);
+            // Cập nhật trạng thái bàn mới
+            newTables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
+            tableRepository.saveAll(newTables);
 
-                ReservationTable newReservationTable = ReservationTable.builder()
-                        .reservation(reservation)
-                        .table(newTable)
-                        .createdAt(LocalDateTime.now())
-                        .build();
-                reservationTableRepository.save(newReservationTable);
-            }
+            List<ReservationTable> newReservationTables = newTables.stream()
+                    .map(table -> ReservationTable.builder()
+                            .reservation(reservation)
+                            .table(table)
+                            .createdAt(LocalDateTime.now())
+                            .build())
+                    .collect(Collectors.toList());
+
+            reservationTableRepository.saveAll(newReservationTables);
         }
 
         // Lưu cập nhật vào database
         return reservationRepository.save(reservation);
+    }
+
+    private List<Tables> validateTables(List<Integer> tableIds) {
+        List<Tables> tables = tableRepository.findAllById(tableIds);
+
+        // Tạo Map để dễ dàng truy xuất thông tin
+        Map<Integer, Tables> tableMap = tables.stream()
+                .collect(Collectors.toMap(Tables::getId, Function.identity()));
+
+        for (Integer tableId : tableIds) {
+            Tables table = tableMap.get(tableId);
+            if (table == null) {
+                throw new RuntimeException("Table not found with ID: " + tableId);
+            }
+            log.info("Table {} found with status: {}", tableId, table.getStatus());
+
+            if (table.getStatus() != StatusTable.AVAILABLE) {
+                throw new RuntimeException("Table " + tableId + " is already reserved.");
+            }
+        }
+
+        return tables;
     }
 
 
