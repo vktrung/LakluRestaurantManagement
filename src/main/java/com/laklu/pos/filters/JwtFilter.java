@@ -9,21 +9,31 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @Component
-@AllArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtGuard jwtGuard;
     private final UserDetailsService userService;
+
+    private final HandlerExceptionResolver resolver;
+
+    public JwtFilter(JwtGuard jwtGuard, UserDetailsService userService, @Qualifier("handlerExceptionResolver") HandlerExceptionResolver resolver) {
+        this.jwtGuard = jwtGuard;
+        this.userService = userService;
+        this.resolver = resolver;
+    }
 
 
     @Override
@@ -31,12 +41,11 @@ public class JwtFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
         String token = null;
         String subject = null;
-        try {
+        try{
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 token = authorizationHeader.substring(7);
                 subject = jwtGuard.extractSubject(token);
             }
-
             if (subject != null && !JwtGuard.isAuthenticated()) {
                 UserPrincipal userPrincipal = (UserPrincipal) userService.loadUserByUsername(subject);
 
@@ -49,11 +58,9 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
             }
-        } catch (Exception exception) {
-            // TODO : add log
-            throw new UnauthorizedException();
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            this.resolver.resolveException(request, response, null, e);
         }
-
-        filterChain.doFilter(request, response);
     }
 }

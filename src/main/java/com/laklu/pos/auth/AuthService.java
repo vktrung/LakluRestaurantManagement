@@ -1,5 +1,6 @@
 package com.laklu.pos.auth;
 
+import com.laklu.pos.exceptions.InvalidCredentialsException;
 import com.laklu.pos.valueObjects.UserCredentials;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,11 +17,14 @@ public class AuthService {
     private final JwtGuard jwtGuard;
 
     public boolean attempt(UserCredentials credentials) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword())
-        );
-
-        return authentication != null && authentication.isAuthenticated();
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(credentials.getUsername(), credentials.getPassword())
+            );
+            return authentication != null && authentication.isAuthenticated();
+        } catch (Exception e) {
+            throw new InvalidCredentialsException();
+        }
     }
 
     public String login(UserCredentials credentials) {

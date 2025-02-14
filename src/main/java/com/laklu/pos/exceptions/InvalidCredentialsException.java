@@ -7,7 +7,7 @@ public class InvalidCredentialsException extends RestHttpException {
     private final ExceptionCode exceptionCode;
 
     public InvalidCredentialsException() {
-        super(ExceptionCode.UNPROCESSABLE_ENTITY);
+        super(ExceptionCode.INVALID_CREDENTIALS);
         this.exceptionCode = ExceptionCode.UNAUTHORIZED;
     }
 }
