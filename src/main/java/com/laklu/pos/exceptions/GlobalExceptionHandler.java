@@ -1,6 +1,7 @@
 package com.laklu.pos.exceptions;
 
 import com.laklu.pos.dataObjects.ApiResponseEntity;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,6 +17,12 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(JwtException.class)
+    public ApiResponseEntity handleBaseException(JwtException e) {
+        return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, ExceptionCode.INVALID_TOKEN.getMessage());
+    }
+
     @ExceptionHandler(RestHttpException.class)
     public ApiResponseEntity handleBaseException(RestHttpException e) {
         return ApiResponseEntity.exception(e. getStatusCode(), e.getMessage());
