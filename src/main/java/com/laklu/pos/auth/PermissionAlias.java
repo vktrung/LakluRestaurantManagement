@@ -20,7 +20,12 @@ public enum PermissionAlias {
     CREATE_ROLE("roles:create", "Thêm nhóm quyền"),
     UPDATE_ROLE("roles:update", "Sửa nhóm quyền"),
     LIST_ROLE("roles:list", "Danh sách nhóm quyền"),
-    DELETE_ROLE("roles:delete", "Xóa nhóm quyền");
+    DELETE_ROLE("roles:delete", "Xóa nhóm quyền"),
+
+    CREATE_TABLE("tables:create", "Thêm bàn"),
+    UPDATE_TABLE("tables:update", "Sửa bàn"),
+    LIST_TABLE("tables:list", "Danh sách bàn"),
+    DELETE_TABLE("tables:delete", "Xóa bàn");
 
 
     PermissionAlias(String alias, String name) {

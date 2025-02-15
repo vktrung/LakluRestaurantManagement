@@ -1,10 +1,16 @@
 package com.laklu.pos.services;
 
-import com.laklu.pos.dataObjects.request.CreateNewTableRequest;
+import com.laklu.pos.dataObjects.request.NewTable;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
 import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.User;
 import com.laklu.pos.enums.StatusTable;
+import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
+import com.laklu.pos.mapper.TableMapper;
 import com.laklu.pos.repositories.TableRepository;
+import com.laklu.pos.validator.RuleValidator;
+import com.laklu.pos.validator.TableMustAvailable;
+import com.laklu.pos.validator.TableMustBeDeletable;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -12,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +27,23 @@ import java.util.List;
 public class TableService {
 
     TableRepository tableRepository;
+    TableMapper tableMapper;
 
-    public Tables createTable(CreateNewTableRequest request) {
+    public Tables createTable(NewTable request) {
         log.info("Creating table: {}", request);
 
         Tables table = Tables.builder()
                 .tableNumber(request.getTableNumber())
                 .capacity(request.getCapacity())
-                .status(StatusTable.AVAILABLE) // Mặc định AVAILABLE
+                .status(StatusTable.AVAILABLE)
                 .build();
 
         return tableRepository.save(table);
     }
 
+    public Optional<Tables> findByTableName(String tablename) {
+        return tableRepository.findByTableNumber(tablename);
+    }
 
 
     public List<Tables> getAllTables() {
@@ -40,45 +51,38 @@ public class TableService {
     }
 
 
-    public Tables getTableById(Integer id) {
-        return tableRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + id));
+    public Tables findOrFail(Integer id) {
+        return this.findTableById(id).orElseThrow(NotFoundException::new);
+    }
+
+    public Optional<Tables> findTableById(Integer id) {
+        return tableRepository.findById(id);
     }
 
 
     public Tables updateTable(Integer id, TableUpdateRequest request) {
-        return tableRepository.findById(id).map(existingTable -> {
-            if (request.getTableNumber() != null) {
-                existingTable.setTableNumber(request.getTableNumber());
-            }
-            if (request.getCapacity() != null) {
-                existingTable.setCapacity(request.getCapacity());
-            }
-            if (request.getStatus() != null) {
-                existingTable.setStatus(request.getStatus());
-            }
-            return tableRepository.save(existingTable);
-        }).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + id));
+        Tables table = findOrFail(id);
+
+        RuleValidator.validate(new TableMustAvailable(table));
+        tableMapper.updateTable(request, table);
+
+        return tableRepository.save(table);
     }
+
+
+    public void deleteTable(Integer id) {
+        Tables table = findOrFail(id);
+        RuleValidator.validate(new TableMustBeDeletable(table));
+        tableRepository.deleteById(id);
+    }
+
+
 
     public Tables updateTableStatus(Integer id, StatusTable status) {
         return tableRepository.findById(id).map(existingTable -> {
             existingTable.setStatus(status);
             return tableRepository.save(existingTable);
         }).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID " + id));
-    }
-
-
-
-    public void deleteTable(Integer id) {
-        Tables table = tableRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID: " + id));
-
-        if (table.getStatus() == StatusTable.RESERVED || table.getStatus() == StatusTable.OCCUPIED) {
-            throw new RuntimeException("Không thể xóa bàn đang được đặt trước hoặc đang có khách sử dụng.");
-        }
-
-        tableRepository.deleteById(id);
     }
 
 }

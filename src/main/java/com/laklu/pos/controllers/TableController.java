@@ -1,9 +1,21 @@
 package com.laklu.pos.controllers;
 
-import com.laklu.pos.dataObjects.request.CreateNewTableRequest;
+import com.laklu.pos.auth.JwtGuard;
+import com.laklu.pos.auth.policies.TablePolicy;
+import com.laklu.pos.dataObjects.ApiResponseEntity;
+import com.laklu.pos.dataObjects.request.NewTable;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
+import com.laklu.pos.dataObjects.response.AuthUserResponse;
+import com.laklu.pos.dataObjects.response.TableResponse;
 import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.User;
+import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.TableService;
+import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.RuleValidator;
+import com.laklu.pos.validator.TableMustBeUnique;
+import com.laklu.pos.validator.UsernameMustBeUnique;
+import com.laklu.pos.valueObjects.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,41 +25,69 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 @RestController
-@RequestMapping("/tables")
+@RequestMapping("api/v1/tables")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TableController {
     TableService tableService;
+    TablePolicy tablePolicy;
 
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public Tables createTable(@Valid @RequestBody CreateNewTableRequest request) {
-        return tableService.createTable(request);
+
+    @GetMapping("/")
+    public ApiResponseEntity index() throws Exception {
+
+        Ultis.throwUnless(tablePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
+
+        List<Tables> tables = tableService.getAllTables();
+
+        return ApiResponseEntity.success(tables);
     }
 
-    @GetMapping
-    public List<Tables> getAllTables() {
-        return tableService.getAllTables();
+    @PostMapping("/")
+    public ApiResponseEntity store(@Valid @RequestBody NewTable request) throws Exception{
+
+        Ultis.throwUnless(tablePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+
+        Function<String, Optional<Tables>> tabeResolver = tableService::findByTableName;
+
+        RuleValidator.validate(new TableMustBeUnique(tabeResolver, request.getTableNumber()));
+
+        Tables tables = tableService.createTable(request);
+
+        return ApiResponseEntity.success(new TableResponse(tables));
     }
 
     @GetMapping("/{id}")
-    public Tables getTableById(@PathVariable Integer id) {
-        return tableService.getTableById(id);
+    public ApiResponseEntity show(@PathVariable Integer id) throws Exception {
+
+        Tables table = tableService.findOrFail(id);
+
+        Ultis.throwUnless(tablePolicy.canView(JwtGuard.userPrincipal(), table), new ForbiddenException());
+
+
+        return ApiResponseEntity.success(new TableResponse(table));
     }
 
     @PutMapping("/{id}")
-    public Tables updateTable(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) {
-        return tableService.updateTable(id, request);
+    public ApiResponseEntity updateTable(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
+        Tables table = tableService.findOrFail(id);
+        Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), table), new ForbiddenException());
+        Tables updatedTable = tableService.updateTable(id, request);
+        return ApiResponseEntity.success(new TableResponse(updatedTable));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTable(@PathVariable Integer id) {
+    public ApiResponseEntity delete(@PathVariable Integer id) throws Exception {
+        Ultis.throwUnless(tablePolicy.canDelete(JwtGuard.userPrincipal(), tableService.findOrFail(id)), new ForbiddenException());
         tableService.deleteTable(id);
+        return ApiResponseEntity.success("Table deleted successfully.");
     }
+
 
 
 

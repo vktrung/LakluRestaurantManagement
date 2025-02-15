@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateNewTableRequest {
+public class NewTable {
     @NotBlank(message = "Không được để trống tên bàn") // Không được null hoặc rỗng
     @Size(max = 50, message = "Tên bàn không được quá 50 kí tự") // Giới hạn độ dài
     String tableNumber;

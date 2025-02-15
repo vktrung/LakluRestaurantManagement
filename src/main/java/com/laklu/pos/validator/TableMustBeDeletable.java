@@ -5,8 +5,7 @@ import com.laklu.pos.enums.StatusTable;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public class TableMustAvailable extends BaseRule {
-
+public class TableMustBeDeletable extends BaseRule {
     private final Tables table;
 
     @Override
@@ -16,11 +15,11 @@ public class TableMustAvailable extends BaseRule {
 
     @Override
     public boolean isValid() {
-        return table.getStatus() == StatusTable.AVAILABLE;
+        return !(table.getStatus() == StatusTable.RESERVED || table.getStatus() == StatusTable.OCCUPIED);
     }
 
     @Override
     public String getMessage() {
-        return "Bàn không ở trạng thái có sẵn, không thể cập nhật!";
+        return "Không thể xóa bàn đang được đặt trước hoặc đang có khách sử dụng.";
     }
 }
