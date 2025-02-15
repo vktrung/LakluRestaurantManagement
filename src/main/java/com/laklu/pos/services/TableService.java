@@ -30,14 +30,8 @@ public class TableService {
     TableMapper tableMapper;
 
     public Tables createTable(NewTable request) {
-        log.info("Creating table: {}", request);
 
-        Tables table = Tables.builder()
-                .tableNumber(request.getTableNumber())
-                .capacity(request.getCapacity())
-                .status(StatusTable.AVAILABLE)
-                .build();
-
+        Tables table = tableMapper.toEntity(request); // Dùng MapStruct để chuyển đổi DTO thành Entity
         return tableRepository.save(table);
     }
 
@@ -63,7 +57,7 @@ public class TableService {
     public Tables updateTable(Integer id, TableUpdateRequest request) {
         Tables table = findOrFail(id);
 
-        RuleValidator.validate(new TableMustAvailable(table));
+        RuleValidator.validate(new TableMustAvailable(List.of(table)));
         tableMapper.updateTable(request, table);
 
         return tableRepository.save(table);

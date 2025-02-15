@@ -74,7 +74,7 @@ public class TableController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponseEntity updateTable(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
+    public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
         Tables table = tableService.findOrFail(id);
         Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), table), new ForbiddenException());
         Tables updatedTable = tableService.updateTable(id, request);

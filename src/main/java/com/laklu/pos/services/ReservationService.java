@@ -4,11 +4,16 @@ import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
 import com.laklu.pos.entities.Reservations;
 import com.laklu.pos.entities.ReservationTable;
 import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.User;
 import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.dataObjects.request.ReservationRequest;
+import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
+import com.laklu.pos.mapper.ReservationMapper;
 import com.laklu.pos.repositories.ReservationRepository;
 import com.laklu.pos.repositories.ReservationTableRepository;
 import com.laklu.pos.repositories.TableRepository;
+import com.laklu.pos.validator.RuleValidator;
+import com.laklu.pos.validator.TableMustAvailable;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -30,62 +36,37 @@ public class ReservationService {
     ReservationRepository reservationRepository;
     TableRepository tableRepository;
     ReservationTableRepository reservationTableRepository;
+    ReservationMapper reservationMapper;
 
     @Transactional
     public Reservations createReservation(ReservationRequest request) {
         log.info("Creating reservation for customer: {}", request.getCustomerName());
 
-        Reservations reservation = Reservations.builder()
-                .customerName(request.getCustomerName())
-                .customerPhone(request.getCustomerPhone())
-                .reservationTime(LocalDateTime.now())
-                .status(Reservations.Status.PENDING)
-                .build();
-
+        Reservations reservation = reservationMapper.toEntity(request);
+        reservation.setReservationTime(LocalDateTime.now());
         reservation = reservationRepository.save(reservation);
 
-        List<Tables> tables = validateTables(request.getTableIds());
+        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
 
-        Map<Integer, Tables> tableMap = tables.stream()
-                .collect(Collectors.toMap(Tables::getId, Function.identity()));
+        RuleValidator.validate(new TableMustAvailable(tables));
 
-        for (Integer tableId : request.getTableIds()) {
-            Tables table = tableMap.get(tableId);
+        tables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
+        tableRepository.saveAll(tables);
 
-            table.setStatus(StatusTable.OCCUPIED);
-            tableRepository.save(table);
-
-            ReservationTable reservationTable = ReservationTable.builder()
-                    .reservation(reservation)
-                    .table(table)
-                    .createdAt(LocalDateTime.now())
-                    .build();
-
-            reservationTableRepository.save(reservationTable);
-        }
+        // Gọi lại phương thức chung
+        createReservationTables(reservation, tables, reservation.getReservationTime());
 
         return reservation;
     }
 
+
     public Reservations updateReservation(Integer reservationId, UpdateReservationRequest request) {
-        Reservations reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found with ID: " + reservationId));
+        Reservations reservation = findOrFail(reservationId);
+        reservationMapper.updateReservation(request, reservation);
 
-        if (request.getCustomerName() != null) {
-            reservation.setCustomerName(request.getCustomerName());
-        }
-        if (request.getCustomerPhone() != null) {
-            reservation.setCustomerPhone(request.getCustomerPhone());
-        }
-        if (request.getReservationTime() != null) {
-            reservation.setReservationTime(request.getReservationTime());
-        }
-
-        // Kiểm tra nếu khách muốn đổi bàn
         if (request.getTableIds() != null && !request.getTableIds().isEmpty()) {
             log.info("Updating tables for reservation ID: {}", reservationId);
 
-            // Giải phóng bàn cũ
             List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
             List<Tables> tablesToRelease = oldTables.stream()
                     .map(ReservationTable::getTable)
@@ -95,48 +76,38 @@ public class ReservationService {
             tableRepository.saveAll(tablesToRelease);
             reservationTableRepository.deleteAll(oldTables);
 
-            // Kiểm tra bàn mới
-            List<Tables> newTables = validateTables(request.getTableIds());
+            List<Tables> newTables = tableRepository.findAllById(request.getTableIds());
+            RuleValidator.validate(new TableMustAvailable(newTables));
 
-            // Cập nhật trạng thái bàn mới
             newTables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
             tableRepository.saveAll(newTables);
 
-            List<ReservationTable> newReservationTables = newTables.stream()
-                    .map(table -> ReservationTable.builder()
-                            .reservation(reservation)
-                            .table(table)
-                            .createdAt(LocalDateTime.now())
-                            .build())
-                    .collect(Collectors.toList());
-
-            reservationTableRepository.saveAll(newReservationTables);
+            // Gọi lại phương thức chung
+            createReservationTables(reservation, newTables, LocalDateTime.now());
         }
 
-        // Lưu cập nhật vào database
         return reservationRepository.save(reservation);
     }
 
-    private List<Tables> validateTables(List<Integer> tableIds) {
-        List<Tables> tables = tableRepository.findAllById(tableIds);
 
-        // Tạo Map để dễ dàng truy xuất thông tin
-        Map<Integer, Tables> tableMap = tables.stream()
-                .collect(Collectors.toMap(Tables::getId, Function.identity()));
+    public Optional<Reservations> findReservationById(Integer id) {
+        return reservationRepository.findById(id);
+    }
 
-        for (Integer tableId : tableIds) {
-            Tables table = tableMap.get(tableId);
-            if (table == null) {
-                throw new RuntimeException("Table not found with ID: " + tableId);
-            }
-            log.info("Table {} found with status: {}", tableId, table.getStatus());
+    public Reservations findOrFail(Integer id) {
+        return this.findReservationById(id).orElseThrow(NotFoundException::new);
+    }
 
-            if (table.getStatus() != StatusTable.AVAILABLE) {
-                throw new RuntimeException("Table " + tableId + " is already reserved.");
-            }
-        }
+    private void createReservationTables(Reservations reservation, List<Tables> tables, LocalDateTime createdAt) {
+        List<ReservationTable> reservationTables = tables.stream()
+                .map(table -> ReservationTable.builder()
+                        .reservation(reservation)
+                        .table(table)
+                        .createdAt(createdAt)
+                        .build())
+                .collect(Collectors.toList());
 
-        return tables;
+        reservationTableRepository.saveAll(reservationTables);
     }
 
 

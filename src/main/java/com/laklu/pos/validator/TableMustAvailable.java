@@ -4,10 +4,12 @@ import com.laklu.pos.entities.Tables;
 import com.laklu.pos.enums.StatusTable;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 @AllArgsConstructor
 public class TableMustAvailable extends BaseRule {
 
-    private final Tables table;
+    private final List<Tables> tables;
 
     @Override
     public String getValidateField() {
@@ -16,7 +18,7 @@ public class TableMustAvailable extends BaseRule {
 
     @Override
     public boolean isValid() {
-        return table.getStatus() == StatusTable.AVAILABLE;
+        return tables.stream().allMatch(table -> table.getStatus() == StatusTable.AVAILABLE);
     }
 
     @Override
