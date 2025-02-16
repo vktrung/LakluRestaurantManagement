@@ -30,8 +30,8 @@ public class TableService {
     TableMapper tableMapper;
 
     public Tables createTable(NewTable request) {
-
         Tables table = tableMapper.toEntity(request); // Dùng MapStruct để chuyển đổi DTO thành Entity
+
         return tableRepository.save(table);
     }
 
@@ -58,6 +58,7 @@ public class TableService {
         Tables table = findOrFail(id);
 
         RuleValidator.validate(new TableMustAvailable(List.of(table)));
+
         tableMapper.updateTable(request, table);
 
         return tableRepository.save(table);
@@ -66,7 +67,9 @@ public class TableService {
 
     public void deleteTable(Integer id) {
         Tables table = findOrFail(id);
+
         RuleValidator.validate(new TableMustBeDeletable(table));
+
         tableRepository.deleteById(id);
     }
 

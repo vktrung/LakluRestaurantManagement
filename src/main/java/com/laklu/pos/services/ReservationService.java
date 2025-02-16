@@ -40,10 +40,10 @@ public class ReservationService {
 
     @Transactional
     public Reservations createReservation(ReservationRequest request) {
-        log.info("Creating reservation for customer: {}", request.getCustomerName());
-
         Reservations reservation = reservationMapper.toEntity(request);
+
         reservation.setReservationTime(LocalDateTime.now());
+
         reservation = reservationRepository.save(reservation);
 
         List<Tables> tables = tableRepository.findAllById(request.getTableIds());
@@ -51,6 +51,7 @@ public class ReservationService {
         RuleValidator.validate(new TableMustAvailable(tables));
 
         tables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
+
         tableRepository.saveAll(tables);
 
         // Gọi lại phương thức chung
@@ -62,24 +63,29 @@ public class ReservationService {
 
     public Reservations updateReservation(Integer reservationId, UpdateReservationRequest request) {
         Reservations reservation = findOrFail(reservationId);
+
         reservationMapper.updateReservation(request, reservation);
 
         if (request.getTableIds() != null && !request.getTableIds().isEmpty()) {
-            log.info("Updating tables for reservation ID: {}", reservationId);
 
             List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
+
             List<Tables> tablesToRelease = oldTables.stream()
                     .map(ReservationTable::getTable)
                     .collect(Collectors.toList());
 
             tablesToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
+
             tableRepository.saveAll(tablesToRelease);
+
             reservationTableRepository.deleteAll(oldTables);
 
             List<Tables> newTables = tableRepository.findAllById(request.getTableIds());
+
             RuleValidator.validate(new TableMustAvailable(newTables));
 
             newTables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
+
             tableRepository.saveAll(newTables);
 
             // Gọi lại phương thức chung
@@ -109,6 +115,4 @@ public class ReservationService {
 
         reservationTableRepository.saveAll(reservationTables);
     }
-
-
 }

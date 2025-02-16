@@ -31,6 +31,7 @@ public class ReservationController {
         Ultis.throwUnless(reservationPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
         Reservations reservation = reservationService.createReservation(request);
+
         return ApiResponseEntity.success(reservation);
     }
 
@@ -38,10 +39,11 @@ public class ReservationController {
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody UpdateReservationRequest request) throws Exception {
         Reservations reservation = reservationService.findOrFail(id);
+
         Ultis.throwUnless(reservationPolicy.canEdit(JwtGuard.userPrincipal(), reservation), new ForbiddenException());
 
         Reservations updatedReservation = reservationService.updateReservation(id, request);
+
         return ApiResponseEntity.success(updatedReservation);
     }
-
 }

@@ -37,10 +37,8 @@ public class TableController {
     TableService tableService;
     TablePolicy tablePolicy;
 
-
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
-
         Ultis.throwUnless(tablePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
 
         List<Tables> tables = tableService.getAllTables();
@@ -50,7 +48,6 @@ public class TableController {
 
     @PostMapping("/")
     public ApiResponseEntity store(@Valid @RequestBody NewTable request) throws Exception{
-
         Ultis.throwUnless(tablePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
         Function<String, Optional<Tables>> tabeResolver = tableService::findByTableName;
@@ -64,7 +61,6 @@ public class TableController {
 
     @GetMapping("/{id}")
     public ApiResponseEntity show(@PathVariable Integer id) throws Exception {
-
         Tables table = tableService.findOrFail(id);
 
         Ultis.throwUnless(tablePolicy.canView(JwtGuard.userPrincipal(), table), new ForbiddenException());
@@ -76,19 +72,20 @@ public class TableController {
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
         Tables table = tableService.findOrFail(id);
+
         Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), table), new ForbiddenException());
+
         Tables updatedTable = tableService.updateTable(id, request);
+
         return ApiResponseEntity.success(new TableResponse(updatedTable));
     }
 
     @DeleteMapping("/{id}")
     public ApiResponseEntity delete(@PathVariable Integer id) throws Exception {
         Ultis.throwUnless(tablePolicy.canDelete(JwtGuard.userPrincipal(), tableService.findOrFail(id)), new ForbiddenException());
+
         tableService.deleteTable(id);
+
         return ApiResponseEntity.success("Table deleted successfully.");
     }
-
-
-
-
 }
