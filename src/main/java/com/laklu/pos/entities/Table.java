@@ -13,7 +13,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@jakarta.persistence.Table(name = "TABLES")
 @Entity
 public class Table {
 
