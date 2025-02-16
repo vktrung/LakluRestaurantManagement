@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/pos
     username: root
-    password: password
+    password: root
 
   jpa:
     hibernate:
@@ -19,3 +19,13 @@ app-setup:
   adminUsername: admin
   adminPassword: admin
   adminEmail: example@gmail.com
+
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    display-request-duration: true
+    operations-sorter: method

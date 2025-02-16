@@ -39,6 +39,11 @@ public class SecurityConfig {
 
         whiteListRoutes.add("/api/v1/auth/login");
         whiteListRoutes.add("/error");
+        whiteListRoutes.add("/swagger-ui/**");
+        whiteListRoutes.add("/v3/api-docs/**");
+        whiteListRoutes.add("/swagger-resources/**");
+        whiteListRoutes.add("/webjars/**");
+
         if(!alreadySetup) {
             whiteListRoutes.add("/api/v1/setup/permissions");
             whiteListRoutes.add("/api/v1/setup/super-admin");
