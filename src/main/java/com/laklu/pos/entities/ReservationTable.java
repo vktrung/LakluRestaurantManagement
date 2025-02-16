@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
-@jakarta.persistence.Table(name = "RESERVATION_TABLE")
 @Data
 @Builder
 @NoArgsConstructor
