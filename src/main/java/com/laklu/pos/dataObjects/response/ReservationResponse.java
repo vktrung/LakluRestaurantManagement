@@ -1,9 +1,7 @@
 package com.laklu.pos.dataObjects.response;
 
-import com.laklu.pos.entities.Reservations;
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Reservation;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
@@ -17,22 +15,22 @@ public class ReservationResponse {
     String customerName;
     String customerPhone;
     LocalDateTime reservationTime;
-    Reservations.Status status;
+    Reservation.Status status;
     LocalDateTime checkIn;
     LocalDateTime checkOut;
     List<Integer> tableIds;
 
-    public ReservationResponse(Reservations reservations) {
-        this.customerName = reservations.getCustomerName();
-        this.customerPhone = reservations.getCustomerPhone();
-        this.reservationTime = reservations.getReservationTime();
-        this.status = reservations.getStatus();
-        this.checkIn = reservations.getCheckIn();
-        this.checkOut = reservations.getCheckOut();
+    public ReservationResponse(Reservation reservation) {
+        this.customerName = reservation.getCustomerName();
+        this.customerPhone = reservation.getCustomerPhone();
+        this.reservationTime = reservation.getReservationTime();
+        this.status = reservation.getStatus();
+        this.checkIn = reservation.getCheckIn();
+        this.checkOut = reservation.getCheckOut();
 
         // Lấy danh sách tableIds từ reservationTables
-        this.tableIds = reservations.getReservationTables() != null
-                ? reservations.getReservationTables().stream()
+        this.tableIds = reservation.getReservationTables() != null
+                ? reservation.getReservationTables().stream()
                 .map(rt -> rt.getTable().getId())
                 .collect(Collectors.toList())
                 : null;

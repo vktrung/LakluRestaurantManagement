@@ -1,12 +1,12 @@
 package com.laklu.pos.auth.policies;
 
-import com.laklu.pos.entities.Reservations;
+import com.laklu.pos.entities.Reservation;
 import com.laklu.pos.auth.PermissionAlias;
 import com.laklu.pos.valueObjects.UserPrincipal;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReservationPolicy implements Policy<Reservations> {
+public class ReservationPolicy implements Policy<Reservation> {
 
     @Override
     public boolean canCreate(UserPrincipal userPrincipal) {
@@ -14,17 +14,17 @@ public class ReservationPolicy implements Policy<Reservations> {
     }
 
     @Override
-    public boolean canEdit(UserPrincipal userPrincipal, Reservations reservation) {
+    public boolean canEdit(UserPrincipal userPrincipal, Reservation reservation) {
         return userPrincipal.hasPermission(PermissionAlias.UPDATE_RESERVATION);
     }
 
     @Override
-    public boolean canDelete(UserPrincipal userPrincipal, Reservations reservation) {
+    public boolean canDelete(UserPrincipal userPrincipal, Reservation reservation) {
         return userPrincipal.hasPermission(PermissionAlias.DELETE_RESERVATION);
     }
 
     @Override
-    public boolean canView(UserPrincipal userPrincipal, Reservations reservation) {
+    public boolean canView(UserPrincipal userPrincipal, Reservation reservation) {
         return userPrincipal.hasPermission(PermissionAlias.VIEW_RESERVATION);
     }
 

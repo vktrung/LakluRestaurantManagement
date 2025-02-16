@@ -1,54 +1,63 @@
 package com.laklu.pos.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.laklu.pos.enums.StatusTable;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
 import java.time.LocalDateTime;
 import java.util.Set;
 
+@Entity
+@Table(name = "RESERVATIONS")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "TABLES")
-@Entity
-public class Tables {
+public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id;
 
-    @Column(name = "table_number", nullable = false, length = 50)
-    String tableNumber;
+    @Column(name = "customer_name", nullable = false)
+    String customerName;
 
-    @Column(name = "capacity", nullable = false)
-    Integer capacity;
+    @Column(name = "customer_phone", nullable = false)
+    String customerPhone;
+
+    @Column(name = "reservation_time", nullable = false)
+    LocalDateTime reservationTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
-    StatusTable status;
+    Status status;
 
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    LocalDateTime createdAt;
+    @Column(name = "check_in")
+    LocalDateTime checkIn;
 
-    @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @Column(name = "check_out")
+    LocalDateTime checkOut;
+
+    @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     Set<ReservationTable> reservationTables;
 
     @PrePersist
     protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
     }
 
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public enum Status {
+        PENDING, CONFIRMED, CANCELLED, COMPLETED
     }
 }

@@ -1,6 +1,6 @@
 package com.laklu.pos.validator;
 
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Table;
 import com.laklu.pos.enums.StatusTable;
 import lombok.AllArgsConstructor;
 
@@ -9,7 +9,7 @@ import java.util.List;
 @AllArgsConstructor
 public class TableMustAvailable extends BaseRule {
 
-    private final List<Tables> tables;
+    private final List<Table> tables;
 
     @Override
     public String getValidateField() {

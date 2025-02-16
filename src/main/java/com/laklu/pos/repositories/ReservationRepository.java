@@ -1,13 +1,12 @@
 package com.laklu.pos.repositories;
 
-import com.laklu.pos.entities.Reservations;
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservations, Integer> {
-    Optional<Reservations> findById(Integer id);
+public interface ReservationRepository extends JpaRepository<Reservation, Integer> {
+    Optional<Reservation> findById(Integer id);
 }

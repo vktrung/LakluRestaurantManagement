@@ -7,7 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "RESERVATION_TABLE")
+@jakarta.persistence.Table(name = "RESERVATION_TABLE")
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,11 +21,11 @@ public class ReservationTable {
 
     @ManyToOne
     @JoinColumn(name = "reservation_id", nullable = false)
-    Reservations reservation;
+    Reservation reservation;
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
-    Tables table;
+    Table table;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     LocalDateTime createdAt;

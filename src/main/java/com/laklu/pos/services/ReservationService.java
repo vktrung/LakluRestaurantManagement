@@ -1,10 +1,9 @@
 package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
-import com.laklu.pos.entities.Reservations;
+import com.laklu.pos.entities.Reservation;
 import com.laklu.pos.entities.ReservationTable;
-import com.laklu.pos.entities.Tables;
-import com.laklu.pos.entities.User;
+import com.laklu.pos.entities.Table;
 import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.dataObjects.request.ReservationRequest;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
@@ -22,9 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,14 +36,14 @@ public class ReservationService {
     ReservationMapper reservationMapper;
 
     @Transactional
-    public Reservations createReservation(ReservationRequest request) {
-        Reservations reservation = reservationMapper.toEntity(request);
+    public Reservation createReservation(ReservationRequest request) {
+        Reservation reservation = reservationMapper.toEntity(request);
 
         reservation.setReservationTime(LocalDateTime.now());
 
         reservation = reservationRepository.save(reservation);
 
-        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
+        List<Table> tables = tableRepository.findAllById(request.getTableIds());
 
         RuleValidator.validate(new TableMustAvailable(tables));
 
@@ -61,8 +58,8 @@ public class ReservationService {
     }
 
 
-    public Reservations updateReservation(Integer reservationId, UpdateReservationRequest request) {
-        Reservations reservation = findOrFail(reservationId);
+    public Reservation updateReservation(Integer reservationId, UpdateReservationRequest request) {
+        Reservation reservation = findOrFail(reservationId);
 
         reservationMapper.updateReservation(request, reservation);
 
@@ -70,17 +67,17 @@ public class ReservationService {
 
             List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
 
-            List<Tables> tablesToRelease = oldTables.stream()
+            List<Table> tableToRelease = oldTables.stream()
                     .map(ReservationTable::getTable)
                     .collect(Collectors.toList());
 
-            tablesToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
+            tableToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
 
-            tableRepository.saveAll(tablesToRelease);
+            tableRepository.saveAll(tableToRelease);
 
             reservationTableRepository.deleteAll(oldTables);
 
-            List<Tables> newTables = tableRepository.findAllById(request.getTableIds());
+            List<Table> newTables = tableRepository.findAllById(request.getTableIds());
 
             RuleValidator.validate(new TableMustAvailable(newTables));
 
@@ -96,15 +93,15 @@ public class ReservationService {
     }
 
 
-    public Optional<Reservations> findReservationById(Integer id) {
+    public Optional<Reservation> findReservationById(Integer id) {
         return reservationRepository.findById(id);
     }
 
-    public Reservations findOrFail(Integer id) {
+    public Reservation findOrFail(Integer id) {
         return this.findReservationById(id).orElseThrow(NotFoundException::new);
     }
 
-    private void createReservationTables(Reservations reservation, List<Tables> tables, LocalDateTime createdAt) {
+    private void createReservationTables(Reservation reservation, List<Table> tables, LocalDateTime createdAt) {
         List<ReservationTable> reservationTables = tables.stream()
                 .map(table -> ReservationTable.builder()
                         .reservation(reservation)
