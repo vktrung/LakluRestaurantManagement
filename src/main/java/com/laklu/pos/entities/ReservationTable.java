@@ -24,7 +24,7 @@ public class ReservationTable {
 
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
-    Table table;
+    Tables tables;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     LocalDateTime createdAt;

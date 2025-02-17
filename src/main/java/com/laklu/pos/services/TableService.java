@@ -2,7 +2,7 @@ package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.NewTable;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
-import com.laklu.pos.entities.Table;
+import com.laklu.pos.entities.Tables;
 import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.mapper.TableMapper;
@@ -28,53 +28,53 @@ public class TableService {
     TableRepository tableRepository;
     TableMapper tableMapper;
 
-    public Table createTable(NewTable request) {
-        Table table = tableMapper.toEntity(request); // Dùng MapStruct để chuyển đổi DTO thành Entity
+    public Tables createTable(NewTable request) {
+        Tables tables = tableMapper.toEntity(request); // Dùng MapStruct để chuyển đổi DTO thành Entity
 
-        return tableRepository.save(table);
+        return tableRepository.save(tables);
     }
 
-    public Optional<Table> findByTableName(String tablename) {
+    public Optional<Tables> findByTableName(String tablename) {
         return tableRepository.findByTableNumber(tablename);
     }
 
 
-    public List<Table> getAllTables() {
+    public List<Tables> getAllTables() {
         return tableRepository.findAll();
     }
 
 
-    public Table findOrFail(Integer id) {
+    public Tables findOrFail(Integer id) {
         return this.findTableById(id).orElseThrow(NotFoundException::new);
     }
 
-    public Optional<Table> findTableById(Integer id) {
+    public Optional<Tables> findTableById(Integer id) {
         return tableRepository.findById(id);
     }
 
 
-    public Table updateTable(Integer id, TableUpdateRequest request) {
-        Table table = findOrFail(id);
+    public Tables updateTable(Integer id, TableUpdateRequest request) {
+        Tables tables = findOrFail(id);
 
-        RuleValidator.validate(new TableMustAvailable(List.of(table)));
+        RuleValidator.validate(new TableMustAvailable(List.of(tables)));
 
-        tableMapper.updateTable(request, table);
+        tableMapper.updateTable(request, tables);
 
-        return tableRepository.save(table);
+        return tableRepository.save(tables);
     }
 
 
     public void deleteTable(Integer id) {
-        Table table = findOrFail(id);
+        Tables tables = findOrFail(id);
 
-        RuleValidator.validate(new TableMustBeDeletable(table));
+        RuleValidator.validate(new TableMustBeDeletable(tables));
 
         tableRepository.deleteById(id);
     }
 
 
 
-    public Table updateTableStatus(Integer id, StatusTable status) {
+    public Tables updateTableStatus(Integer id, StatusTable status) {
         return tableRepository.findById(id).map(existingTable -> {
             existingTable.setStatus(status);
             return tableRepository.save(existingTable);

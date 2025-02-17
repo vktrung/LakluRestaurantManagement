@@ -35,7 +35,13 @@ public enum PermissionAlias {
     UPDATE_RESERVATION("reservations:update", "Cập nhật đặt chỗ"),
     LIST_RESERVATION("reservations:list", "Danh sách đặt chỗ"),
     DELETE_RESERVATION("reservations:delete", "Xóa đặt chỗ"),
-    VIEW_RESERVATION("reservations:view", "Xem chi tiết đặt chỗ");
+    VIEW_RESERVATION("reservations:view", "Xem chi tiết đặt chỗ"),
+
+    CREATE_ATTACHMENT("attachments:create", "Tải lên tệp đính kèm"),
+    UPDATE_ATTACHMENT("attachments:update", "Cập nhật tệp đính kèm"),
+    LIST_ATTACHMENT("attachments:list", "Danh sách tệp đính kèm"),
+    DELETE_ATTACHMENT("attachments:delete", "Xóa tệp đính kèm"),
+    VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm");
 
 
     PermissionAlias(String alias, String name) {

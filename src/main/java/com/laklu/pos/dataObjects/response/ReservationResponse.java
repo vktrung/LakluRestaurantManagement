@@ -31,7 +31,7 @@ public class ReservationResponse {
         // Lấy danh sách tableIds từ reservationTables
         this.tableIds = reservation.getReservationTables() != null
                 ? reservation.getReservationTables().stream()
-                .map(rt -> rt.getTable().getId())
+                .map(rt -> rt.getTables().getId())
                 .collect(Collectors.toList())
                 : null;
     }
