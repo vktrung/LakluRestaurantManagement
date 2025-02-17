@@ -55,6 +55,7 @@ public class UserController {
     @Operation(summary = "Tạo một người dùng mới", description = "API này dùng để tạo một người dùng mới")
     @PostMapping("/")
     public ApiResponseEntity store(@RequestBody @Validated NewUser user) throws Exception {
+        System.out.println("Received user: " + user);
         Ultis.throwUnless(userPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
         Function<String, Optional<User>> userResolver = userService::findByUsername;
