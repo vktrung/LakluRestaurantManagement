@@ -9,14 +9,17 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -29,10 +32,10 @@ public class AttachmentService {
 
     AttachmentRepository attachmentRepository;
 
-    public Attachment saveFile(MultipartFile file, String targetName, Long targetId) throws IOException {
+    public Attachment saveFile(MultipartFile file) throws IOException {
         RuleValidator.validate(new FileMustBeValid(file));
 
-        String randomName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+        String randomName = UUID.randomUUID() + "_" + file.getOriginalFilename();
 
         Path uploadPath = Paths.get(UPLOAD_DIRECTORY);
 
@@ -48,8 +51,6 @@ public class AttachmentService {
         attachment.setOriginalName(file.getOriginalFilename());
         attachment.setRandomName(randomName);
         attachment.setSize(file.getSize());
-        attachment.setTargetName(targetName);
-        attachment.setTargetId(targetId);
         attachment.setPath("/uploads/" + randomName);
 
         return attachmentRepository.save(attachment);
