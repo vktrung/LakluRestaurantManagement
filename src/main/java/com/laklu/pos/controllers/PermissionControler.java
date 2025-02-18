@@ -3,13 +3,22 @@ package com.laklu.pos.controllers;
 import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.UserPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
+import com.laklu.pos.dataObjects.response.PermissionGroupResponse;
+import com.laklu.pos.dataObjects.response.PermissionResponse;
+import com.laklu.pos.entities.Permission;
+import com.laklu.pos.enums.PermissionGroup;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.PermissionService;
 import com.laklu.pos.uiltis.Ultis;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.groupingBy;
 
 @RestController
 @RequestMapping("/api/v1/permissions")
@@ -23,6 +32,33 @@ public class PermissionControler {
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(userPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
 
-        return ApiResponseEntity.success(permissionService.getAll());
+        List<Permission> permissions = permissionService.getAll();
+        Map<PermissionGroup, List<Permission>> permissionMap = permissions.stream()
+                .collect(groupingBy(Permission::getPermissionGroup));
+
+        List<PermissionGroupResponse> result = new ArrayList<>();
+        for (Map.Entry<PermissionGroup, List<Permission>> entry : permissionMap.entrySet()) {
+            PermissionGroup group = entry.getKey();
+            List<PermissionResponse> permissionDTOs = entry.getValue().stream()
+                    .map(p -> new PermissionResponse(p.getId(), p.getAlias(), p.getName(), p.getDescription()))
+                    .collect(Collectors.toList());
+
+            result.add(new PermissionGroupResponse(
+                    group.getLabel(),
+                    group.getAlias(),
+                    group.getDescription(),
+                    permissionDTOs
+            ));
+        }
+        return ApiResponseEntity.success(result);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponseEntity updateDescription(@PathVariable int id,@RequestBody String description) throws Exception {
+        Ultis.throwUnless(userPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+
+        permissionService.updateDescription(id, description);
+
+        return ApiResponseEntity.success("Permission description updated successfully");
     }
 }
