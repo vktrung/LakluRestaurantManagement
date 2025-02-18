@@ -10,6 +10,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 import java.util.Map;
@@ -30,7 +31,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ApiResponseEntity handleException(Exception e) {
-        return ApiResponseEntity.exception(HttpStatus.INTERNAL_SERVER_ERROR, e.getCause());
+        return ApiResponseEntity.exception(HttpStatus.INTERNAL_SERVER_ERROR, e.getCause(), e.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -63,6 +64,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     protected ApiResponseEntity handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
         return ApiResponseEntity.exception(HttpStatus.METHOD_NOT_ALLOWED, ex.getMessage());
+    }
+
+    @ExceptionHandler(MultipartException.class)
+    public ApiResponseEntity handleFileUploadException(MultipartException e) {
+        return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
 }
