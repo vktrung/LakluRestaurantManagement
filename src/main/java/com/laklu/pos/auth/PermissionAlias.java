@@ -1,6 +1,12 @@
 package com.laklu.pos.auth;
 
 import lombok.Getter;
+import org.springframework.http.HttpStatus;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Getter
@@ -20,8 +26,12 @@ public enum PermissionAlias {
     UPDATE_ATTACHMENT("attachments:update", "Cập nhật tệp đính kèm"),
     LIST_ATTACHMENT("attachments:list", "Danh sách tệp đính kèm"),
     DELETE_ATTACHMENT("attachments:delete", "Xóa tệp đính kèm"),
-    VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm");
+    VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm"),
 
+    CREATE_CATEGORY("categories:create","Thêm danh mục"),
+    UPDATE_CATEGORY("categories:update","Sửa danh mục"),
+    LIST_CATEGORY("categories:list","Danh sách danh mục"),
+    DELETE_CATEGORY("categories:delete","Xóa danh mục");
 
     PermissionAlias(String alias, String name) {
         this.alias = alias;
