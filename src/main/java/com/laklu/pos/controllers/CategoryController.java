@@ -52,7 +52,6 @@ public class CategoryController {
         return ApiResponseEntity.success(createdCategory, "Tạo category thành công");
     }
 
-
     // Cập nhật category
     @PutMapping("/{id}")
     public ApiResponseEntity updateCategory(@PathVariable Long id, @RequestBody CategoryRequest categoryRequest) throws Exception{
