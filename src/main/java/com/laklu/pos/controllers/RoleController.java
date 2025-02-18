@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/roles")
@@ -39,7 +40,16 @@ public class RoleController {
 
         List<Role> roles = roleService.getAllRoles();
 
-        return ApiResponseEntity.success(roles.stream().map(RoleResource::new).toList());
+        List<RoleResponse> roleResponses = roles.stream()
+                .map(role -> new RoleResponse(
+                        role.getId(),
+                        role.getName(),
+                        role.getDescription(),
+                        role.getUsers().size()
+                ))
+                .collect(Collectors.toList());
+
+        return ApiResponseEntity.success(roleResponses);
     }
 
     @GetMapping("/{id}")
@@ -71,14 +81,5 @@ public class RoleController {
         roleService.deleteRole(role);
 
         return ApiResponseEntity.success("Xóa role thành công");
-    }
-
-    @GetMapping("/allroleswithusers")
-    public ApiResponseEntity listRole() {
-        rolePolicy.canList(JwtGuard.userPrincipal());
-
-        List<RoleResponse> roles = roleService.getAllRoleWithUsersCount();
-
-        return ApiResponseEntity.success(roles);
     }
 }

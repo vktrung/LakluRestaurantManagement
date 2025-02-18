@@ -60,17 +60,4 @@ public class RoleService {
     public void deleteRole(Role role) {
         roleRepository.delete(role);
     }
-
-    public List<RoleResponse> getAllRoleWithUsersCount() {
-        List<Role> roles = roleRepository.findAll();
-
-        return roles.stream()
-                .map(role -> new RoleResponse(
-                        role.getId(),
-                        role.getName(),
-                        role.getDescription(),
-                        role.getUsers().size()
-                ))
-                .collect(Collectors.toList());
-    }
 }
