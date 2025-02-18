@@ -26,8 +26,11 @@ public enum ExceptionCode {
 
     INVALID_CREDENTIALS(401, "Thông tin tài khoản không khớp", HttpStatus.UNAUTHORIZED),
 
-    INVALID_TOKEN(401, "Sai token", HttpStatus.UNAUTHORIZED);
+    INVALID_TOKEN(401, "Sai token", HttpStatus.UNAUTHORIZED),
 
+    CATEGORY_ALREADY_EXISTS(400, "Category với tên đã tồn tại", HttpStatus.BAD_REQUEST),
+
+    NOT_FOUND_CATEGORY(404, "Không tìm thấy category", HttpStatus.NOT_FOUND);
 
     ExceptionCode(int code, String message, HttpStatus statusCode) {
         this.code = code;

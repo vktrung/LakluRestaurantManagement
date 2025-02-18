@@ -15,7 +15,7 @@ public class CategoryResponse
 {
     private String name;
     private String description;
-    private Date createdAt = new Date();
-    private Date updatedAt = new Date();
-    private Boolean isDeleted = false;
+    private Date createdAt;
+    private Date updatedAt;
+    private Boolean isDeleted;
 }

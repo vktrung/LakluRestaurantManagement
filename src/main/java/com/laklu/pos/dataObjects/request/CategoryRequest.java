@@ -1,22 +1,18 @@
 package com.laklu.pos.dataObjects.request;
 
-
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class CategoryRequest {
-    @NotNull(message = "Tên của danh mục không được để trống")
+    @NotBlank(message = "Tên của danh mục không được để trống")
     private String name;
     private String description;
-
-
 
 }
