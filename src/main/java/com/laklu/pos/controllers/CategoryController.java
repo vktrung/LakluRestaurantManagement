@@ -5,71 +5,74 @@ import com.laklu.pos.auth.policies.CategoryPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.CategoryRequest;
 import com.laklu.pos.dataObjects.response.CategoryResponse;
+import com.laklu.pos.entities.Category;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
+import com.laklu.pos.mapper.CategoryMapper;
 import com.laklu.pos.services.CategoryService;
 import com.laklu.pos.uiltis.Ultis;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/categories")
+@AllArgsConstructor
+@RequestMapping("/api/v1/categories")
 public class CategoryController {
 
-    @Autowired
-    private CategoryPolicy categoryPolicy;
+    private final CategoryPolicy categoryPolicy;
 
-    @Autowired
-    private CategoryService categoryService;
+    private final CategoryService categoryService;
 
-    // Lấy danh sách tất cả categories
-    @GetMapping
+    private final CategoryMapper categoryMapper;
+
+    // TODO: thêm filter deleted hoặc not deleted
+    @GetMapping("/")
     public ApiResponseEntity getAllCategories() throws Exception{
         Ultis.throwUnless(categoryPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
-        List<CategoryResponse> categories = categoryService.getAllCategories();
-        return ApiResponseEntity.success(categories, "Lấy danh sách categories thành công");
+
+        List<Category> categories = categoryService.getAllCategories();
+
+        return ApiResponseEntity.success(categoryMapper.toResponseList(categories), "Lấy danh sách categories thành công");
     }
 
-    // Lấy thông tin một category theo ID
+
+    // TODO: khi deleted = true thì không hiển thị là đúng nghiệp vụ hay 0 ?
     @GetMapping("/{id}")
     public ApiResponseEntity getCategoryById(@PathVariable Long id) throws Exception{
         var category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canView(JwtGuard.userPrincipal(), category), new ForbiddenException());
-        CategoryResponse categoryResponse = categoryService.getCategoryById(id);
-        if (category == null) {
-            return ApiResponseEntity.exception(HttpStatus.NOT_FOUND, "Không tìm thấy category với ID: " + id);
-        }
-        return ApiResponseEntity.success(categoryResponse, "Lấy thông tin category thành công");
+
+
+        return ApiResponseEntity.success(categoryMapper.toResponse(category), "Lấy thông tin category thành công");
     }
 
-    // Thêm mới category
-    @PostMapping
+    @PostMapping("/")
     public ApiResponseEntity createCategory( @Valid @RequestBody CategoryRequest categoryRequest)throws Exception{
         Ultis.throwUnless(categoryPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
-        CategoryResponse createdCategory = categoryService.createCategory(categoryRequest);
-        return ApiResponseEntity.success(createdCategory, "Tạo category thành công");
+
+        Category category = categoryService.createCategory(categoryRequest);
+
+        return ApiResponseEntity.success(categoryMapper.toResponse(category), "Tạo category thành công");
     }
 
-    // Cập nhật category
     @PutMapping("/{id}")
     public ApiResponseEntity updateCategory(@PathVariable Long id, @RequestBody CategoryRequest categoryRequest) throws Exception{
-        var  category = categoryService.findOrFail(id);
+        Category category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canEdit(JwtGuard.userPrincipal(), category), new ForbiddenException());
-        CategoryResponse updatedCategory = categoryService.updateCategory(id, categoryRequest);
-        if (updatedCategory == null) {
-            return ApiResponseEntity.exception(HttpStatus.NOT_FOUND, "Không tìm thấy category với ID: " + id);
-        }
-        return ApiResponseEntity.success(updatedCategory, "Cập nhật category thành công");
+
+        Category updatedCategory = categoryService.updateCategory(category, categoryRequest);
+
+        return ApiResponseEntity.success(categoryMapper.toResponse(updatedCategory), "Cập nhật category thành công");
     }
 
-    // Xóa mềm category (Soft Delete)
     @DeleteMapping("/{id}")
     public ApiResponseEntity deleteCategory(@PathVariable Long id) throws Exception{
         var category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canDelete(JwtGuard.userPrincipal(), category), new ForbiddenException());
-        categoryService.deleteCategory(id);
+
+        categoryService.deleteCategory(category);
+
         return ApiResponseEntity.success(null, "Xóa category thành công");
     }
 }
