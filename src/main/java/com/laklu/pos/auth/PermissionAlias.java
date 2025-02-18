@@ -21,12 +21,12 @@ public enum PermissionAlias {
     UPDATE_ATTACHMENT("attachments:update", "Cập nhật tệp đính kèm", PermissionGroup.ATTACHMENT),
     LIST_ATTACHMENT("attachments:list", "Danh sách tệp đính kèm", PermissionGroup.ATTACHMENT),
     DELETE_ATTACHMENT("attachments:delete", "Xóa tệp đính kèm", PermissionGroup.ATTACHMENT),
-    VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm", PermissionGroup.ATTACHMENT);
+    VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm", PermissionGroup.ATTACHMENT),
 
-    CREATE_CATEGORY("categories:create","Thêm danh mục"),
-    UPDATE_CATEGORY("categories:update","Sửa danh mục"),
-    LIST_CATEGORY("categories:list","Danh sách danh mục"),
-    DELETE_CATEGORY("categories:delete","Xóa danh mục");
+    CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
+    UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),
+    LIST_CATEGORY("categories:list","Danh sách danh mục", PermissionGroup.CATEGORY),
+    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY);
 
     PermissionAlias(String alias, String name, PermissionGroup group) {
         this.alias = alias;
