@@ -6,6 +6,7 @@ import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewRole;
 import com.laklu.pos.dataObjects.request.UpdateRole;
 import com.laklu.pos.dataObjects.response.RoleResource;
+import com.laklu.pos.dataObjects.response.RoleResponse;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.services.RoleService;
 import lombok.AllArgsConstructor;
@@ -70,5 +71,14 @@ public class RoleController {
         roleService.deleteRole(role);
 
         return ApiResponseEntity.success("Xóa role thành công");
+    }
+
+    @GetMapping("/allroleswithusers")
+    public ApiResponseEntity listRole() {
+        rolePolicy.canList(JwtGuard.userPrincipal());
+
+        List<RoleResponse> roles = roleService.getAllRoleWithUsersCount();
+
+        return ApiResponseEntity.success(roles);
     }
 }

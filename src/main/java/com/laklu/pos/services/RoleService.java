@@ -2,6 +2,7 @@ package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.NewRole;
 import com.laklu.pos.dataObjects.request.UpdateRole;
+import com.laklu.pos.dataObjects.response.RoleResponse;
 import com.laklu.pos.entities.Permission;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -57,5 +59,18 @@ public class RoleService {
 
     public void deleteRole(Role role) {
         roleRepository.delete(role);
+    }
+
+    public List<RoleResponse> getAllRoleWithUsersCount() {
+        List<Role> roles = roleRepository.findAll();
+
+        return roles.stream()
+                .map(role -> new RoleResponse(
+                        role.getId(),
+                        role.getName(),
+                        role.getDescription(),
+                        role.getUsers().size()
+                ))
+                .collect(Collectors.toList());
     }
 }

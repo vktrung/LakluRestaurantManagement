@@ -18,7 +18,6 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/setup")
-
 public class SetupController {
 
     @Value("${app-setup.adminUsername}")
@@ -54,6 +53,7 @@ public class SetupController {
                 Permission permission = new Permission();
                 permission.setAlias(permissionAlias.getAlias());
                 permission.setName(permissionAlias.getName());
+                permission.setPermissionGroup(permissionAlias.getGroup());
                 newPermission.add(permission);
             }
         });
