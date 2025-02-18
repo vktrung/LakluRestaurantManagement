@@ -8,6 +8,8 @@ import com.laklu.pos.entities.Attachment;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.AttachmentService;
 import com.laklu.pos.uiltis.Ultis;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,6 +17,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 
 @Slf4j
@@ -33,4 +38,12 @@ public class AttachmentController {
         Attachment attachment = attachmentService.saveFile(file);
         return ApiResponseEntity.success(new AttachmentResponse(attachment));
     }
+
+    @GetMapping(value = "/{filename}", produces = MediaType.ALL_VALUE)
+    public Resource show(@PathVariable String filename) throws Exception{
+        Ultis.throwUnless(attachmentPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
+        Path filePath = Paths.get(AttachmentService.UPLOAD_DIRECTORY).resolve(filename);
+        return new UrlResource(filePath.toUri());
+    }
+
 }
