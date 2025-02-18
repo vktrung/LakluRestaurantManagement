@@ -17,30 +17,18 @@ import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @RequiredArgsConstructor
-public class PermissionService  {
+public class PermissionService {
     private final PermissionRepository permissionRepository;
 
-    public List<PermissionGroupResponse> getAll() {
+    public List<Permission> getAll() {
         List<Permission> permissions = permissionRepository.findAll();
 
-        Map<PermissionGroup, List<Permission>> permissionMap = permissions.stream()
-                .collect(groupingBy(Permission::getPermissionGroup));
+        return permissions;
+    }
 
-        List<PermissionGroupResponse> result = new ArrayList<>();
-        for (Map.Entry<PermissionGroup, List<Permission>> entry : permissionMap.entrySet()) {
-            PermissionGroup group = entry.getKey();
-            List<PermissionResponse> permissionDTOs = entry.getValue().stream()
-                    .map(p -> new PermissionResponse(p.getId(), p.getAlias(), p.getName(), p.getDescription()))
-                    .collect(Collectors.toList());
-
-            result.add(new PermissionGroupResponse(
-                    group.getLabel(),
-                    group.getAlias(),
-                    group.getDescription(),
-                    permissionDTOs
-            ));
-        }
-
-        return result;
+    public void updateDescription(int id, String description) {
+        Permission permission = permissionRepository.findById(id).orElseThrow(() -> new RuntimeException("Permission not found"));
+        permission.setDescription(description);
+        permissionRepository.save(permission);
     }
 }
