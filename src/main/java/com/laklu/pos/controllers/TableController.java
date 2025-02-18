@@ -6,7 +6,7 @@ import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewTable;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
 import com.laklu.pos.dataObjects.response.TableResponse;
-import com.laklu.pos.entities.Table;
+import com.laklu.pos.entities.Tables;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.TableService;
 import com.laklu.pos.uiltis.Ultis;
@@ -36,7 +36,7 @@ public class TableController {
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(tablePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
 
-        List<Table> tables = tableService.getAllTables();
+        List<Tables> tables = tableService.getAllTables();
 
         return ApiResponseEntity.success(tables);
     }
@@ -45,34 +45,34 @@ public class TableController {
     public ApiResponseEntity store(@Valid @RequestBody NewTable request) throws Exception{
         Ultis.throwUnless(tablePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
-        Function<String, Optional<Table>> tabeResolver = tableService::findByTableName;
+        Function<String, Optional<Tables>> tabeResolver = tableService::findByTableName;
 
         RuleValidator.validate(new TableMustBeUnique(tabeResolver, request.getTableNumber()));
 
-        Table table = tableService.createTable(request);
+        Tables tables = tableService.createTable(request);
 
-        return ApiResponseEntity.success(new TableResponse(table));
+        return ApiResponseEntity.success(new TableResponse(tables));
     }
 
     @GetMapping("/{id}")
     public ApiResponseEntity show(@PathVariable Integer id) throws Exception {
-        Table table = tableService.findOrFail(id);
+        Tables tables = tableService.findOrFail(id);
 
-        Ultis.throwUnless(tablePolicy.canView(JwtGuard.userPrincipal(), table), new ForbiddenException());
+        Ultis.throwUnless(tablePolicy.canView(JwtGuard.userPrincipal(), tables), new ForbiddenException());
 
 
-        return ApiResponseEntity.success(new TableResponse(table));
+        return ApiResponseEntity.success(new TableResponse(tables));
     }
 
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
-        Table table = tableService.findOrFail(id);
+        Tables tables = tableService.findOrFail(id);
 
-        Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), table), new ForbiddenException());
+        Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), tables), new ForbiddenException());
 
-        Table updatedTable = tableService.updateTable(id, request);
+        Tables updatedTables = tableService.updateTable(id, request);
 
-        return ApiResponseEntity.success(new TableResponse(updatedTable));
+        return ApiResponseEntity.success(new TableResponse(updatedTables));
     }
 
     @DeleteMapping("/{id}")
