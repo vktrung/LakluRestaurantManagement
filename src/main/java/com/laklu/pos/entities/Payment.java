@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -24,7 +25,9 @@ public class Payment {
 
     private BigDecimal amountPaid;
     private String paymentMethod;
-    private String paymentStatus;
+
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
     private LocalDateTime paymentDate;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
