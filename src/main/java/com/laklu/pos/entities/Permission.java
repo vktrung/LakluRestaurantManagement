@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.enums.PermissionGroup;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -25,6 +26,10 @@ public class Permission implements GrantedAuthority {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private PermissionGroup permissionGroup;
 
     @ManyToMany(mappedBy = "permissions")
     private Set<Role> roles;

@@ -5,18 +5,21 @@ import com.laklu.pos.entities.Category;
 import com.laklu.pos.exceptions.NotFoundCategory;
 import com.laklu.pos.mapper.CategoryMapper;
 import com.laklu.pos.repositories.CategoryRepository;
-import com.laklu.pos.validator.Rule;
 import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.ValueExistIn;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
 public class CategoryService {
+
     private final CategoryRepository categoryRepository;
 
     private final CategoryMapper categoryMapper;
@@ -44,7 +47,7 @@ public class CategoryService {
         category.setUpdatedAt(new java.util.Date());
         category.setIsDeleted(false);
 
-        return category;
+        return categoryRepository.save(category);
     }
 
     @Transactional
@@ -70,7 +73,26 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
+    public Optional<Category> findByCategoryById(Long id) {
+        return categoryRepository.findById(id);
+    }
+
     public Category findOrFail(Long id) {
         return this.categoryRepository.findById(id).orElseThrow(NotFoundCategory::new);
+    }
+
+    @Transactional
+    public Category updateCategoryPartially(Long id, Map<String, Object> updates) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundCategory());
+        updates.forEach((key, value) -> {
+            switch (key) {
+                case "name" -> category.setName((String) value);
+                case "description" -> category.setDescription((String) value);
+            }
+        });
+
+        category.setUpdatedAt(new Date());
+        return categoryRepository.save(category);
     }
 }

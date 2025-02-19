@@ -4,7 +4,6 @@ import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.CategoryPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.CategoryRequest;
-import com.laklu.pos.dataObjects.response.CategoryResponse;
 import com.laklu.pos.entities.Category;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.CategoryMapper;
@@ -61,7 +60,7 @@ public class CategoryController {
         Category category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canEdit(JwtGuard.userPrincipal(), category), new ForbiddenException());
 
-        Category updatedCategory = categoryService.updateCategory(category, categoryRequest);
+        Category updatedCategory = categoryService.updateCategoryPartially(category, categoryRequest);
 
         return ApiResponseEntity.success(categoryMapper.toResponse(updatedCategory), "Cập nhật category thành công");
     }
