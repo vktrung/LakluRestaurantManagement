@@ -33,7 +33,6 @@ public class CategoryService {
     }
 
     public Category createCategory(CategoryRequest categoryRequest) {
-        // Check if category name already exists
         ValueExistIn<String> valueExistIn = new ValueExistIn<>(
                 "name",
                 categoryRequest.getName(),
@@ -73,18 +72,13 @@ public class CategoryService {
         categoryRepository.save(category);
     }
 
-    public Optional<Category> findByCategoryById(Long id) {
-        return categoryRepository.findById(id);
-    }
 
     public Category findOrFail(Long id) {
         return this.categoryRepository.findById(id).orElseThrow(NotFoundCategory::new);
     }
 
     @Transactional
-    public Category updateCategoryPartially(Long id, Map<String, Object> updates) {
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new NotFoundCategory());
+    public Category updateCategoryPartially(Category category, Map<String, Object> updates) {
         updates.forEach((key, value) -> {
             switch (key) {
                 case "name" -> category.setName((String) value);

@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @AllArgsConstructor
@@ -56,11 +57,11 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    public ApiResponseEntity updateCategory(@PathVariable Long id, @RequestBody CategoryRequest categoryRequest) throws Exception{
+    public ApiResponseEntity updateCategory(@PathVariable Long id, @RequestBody Map<String, Object> updates) throws Exception{
         Category category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canEdit(JwtGuard.userPrincipal(), category), new ForbiddenException());
 
-        Category updatedCategory = categoryService.updateCategoryPartially(category, categoryRequest);
+        Category updatedCategory = categoryService.updateCategoryPartially(category, updates);
 
         return ApiResponseEntity.success(categoryMapper.toResponse(updatedCategory), "Cập nhật category thành công");
     }
