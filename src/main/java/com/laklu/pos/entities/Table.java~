@@ -1,0 +1,4 @@
+package com.laklu.pos.entities;
+
+public class Table {
+}

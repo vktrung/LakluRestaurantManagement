@@ -28,13 +28,8 @@ public class PaymentService {
     ReservationRepository reservationRepository;
 
     public Payment createPayment(int orderId) {
-        //get order
-        Optional<Order> optionalOrder = orderRepository.findById(orderId);
-        if (optionalOrder.isEmpty()) {
-            throw new NotFoundException();
-        }
-
-        Order order = optionalOrder.get();
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(NotFoundException::new);
 
         //Calculate total price for  OrderItems
         BigDecimal totalAmount = calculateTotalAmount(order);
@@ -72,16 +67,16 @@ public class PaymentService {
     public String generateQrCode(int paymentId) {
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(NotFoundException::new);
+
         BigDecimal amount = payment.getAmountPaid();
         String bank = "MBBank";
         String account = "0587775888";
         String description = "Thanh toan hoa don #" + payment.getId();
 
-        String qrCodeUrl = "https://qr.sepay.vn/img?bank=" + bank
+        return "https://qr.sepay.vn/img?bank=" + bank
                 + "&acc=" + account
                 + "&amount=" + amount
                 + "&des=" + description;
-        return qrCodeUrl;
     }
 
     @Transactional
@@ -106,6 +101,7 @@ public class PaymentService {
 
         payment.setUpdatedAt(java.time.LocalDateTime.now());
         paymentRepository.save(payment);
+
         if ("SUCCESS".equals(paymentStatus)) {
             updateOrdeStatus(payment.getOrder());
         }
@@ -113,10 +109,9 @@ public class PaymentService {
 
     private void updateOrdeStatus(Order order) {
         order.setUpdatedAt(java.time.LocalDateTime.now());
-        Optional<Reservation> optionalReservation = reservationRepository.findById(order.getReservationId());
-
         Reservation reservation = reservationRepository.findById(order.getReservationId())
                 .orElseThrow(NotFoundException::new);
+
         reservation.setCheckOut(java.time.LocalDateTime.now());
         reservation.setUpdatedAt(java.time.LocalDateTime.now());
         reservation.setStatus(Reservation.Status.COMPLETED);
