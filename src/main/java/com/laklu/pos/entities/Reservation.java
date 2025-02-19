@@ -1,6 +1,7 @@
 package com.laklu.pos.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.laklu.pos.auth.JwtGuard;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -42,6 +43,9 @@ public class Reservation {
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
+    @Column(name = "user_id")
+    Integer userId;
+
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     Set<ReservationTable> reservationTables;
@@ -49,6 +53,7 @@ public class Reservation {
     @PrePersist
     protected void onCreate() {
         this.updatedAt = LocalDateTime.now();
+        this.userId = JwtGuard.userPrincipal().getPersitentUser().getId();
     }
 
     @PreUpdate
