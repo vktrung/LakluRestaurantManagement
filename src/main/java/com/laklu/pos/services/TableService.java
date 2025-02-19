@@ -6,6 +6,7 @@ import com.laklu.pos.entities.Tables;
 import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.mapper.TableMapper;
+import com.laklu.pos.repositories.ReservationTableRepository;
 import com.laklu.pos.repositories.TableRepository;
 import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.TableMustAvailable;
@@ -16,6 +17,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,7 @@ public class TableService {
 
     TableRepository tableRepository;
     TableMapper tableMapper;
+    ReservationTableRepository reservationTableRepository;
 
     public Tables createTable(NewTable request) {
         Tables tables = tableMapper.toEntity(request); // Dùng MapStruct để chuyển đổi DTO thành Entity
@@ -56,7 +59,7 @@ public class TableService {
     public Tables updateTable(Integer id, TableUpdateRequest request) {
         Tables tables = findOrFail(id);
 
-        RuleValidator.validate(new TableMustAvailable(List.of(tables)));
+        RuleValidator.validate(new TableMustBeDeletable(tables));
 
         tableMapper.updateTable(request, tables);
 
@@ -72,8 +75,6 @@ public class TableService {
         tableRepository.deleteById(id);
     }
 
-
-
     public Tables updateTableStatus(Integer id, StatusTable status) {
         return tableRepository.findById(id).map(existingTable -> {
             existingTable.setStatus(status);
@@ -81,4 +82,19 @@ public class TableService {
         }).orElseThrow(() -> new RuntimeException("Không tìm thấy bàn với ID " + id));
     }
 
+    public void checkAndUpdateTableStatus() {
+        LocalDate today = LocalDate.now();
+        List<Tables> tables = tableRepository.findAll();
+
+        tables.forEach(table -> {
+            long count = reservationTableRepository.countByTableAndDateAndNotCompleted(table.getId(), today);
+            if (count > 0) {
+                table.setStatus(StatusTable.RESERVED);
+            } else {
+                table.setStatus(StatusTable.AVAILABLE);
+            }
+        });
+
+        tableRepository.saveAll(tables);
+    }
 }

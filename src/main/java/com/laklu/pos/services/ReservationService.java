@@ -39,19 +39,12 @@ public class ReservationService {
     public Reservation createReservation(ReservationRequest request) {
         Reservation reservation = reservationMapper.toEntity(request);
 
-        reservation.setReservationTime(LocalDateTime.now());
+        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
+
+        RuleValidator.validate(new TableMustAvailable(tables, reservationTableRepository, reservation.getCheckIn().toLocalDate()));
 
         reservation = reservationRepository.save(reservation);
 
-        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
-
-        RuleValidator.validate(new TableMustAvailable(tables));
-
-        tables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
-
-        tableRepository.saveAll(tables);
-
-        // Gọi lại phương thức chung
         createReservationTables(reservation, tables, reservation.getReservationTime());
 
         return reservation;
@@ -79,13 +72,12 @@ public class ReservationService {
 
             List<Tables> newTables = tableRepository.findAllById(request.getTableIds());
 
-            RuleValidator.validate(new TableMustAvailable(newTables));
+            RuleValidator.validate(new TableMustAvailable(newTables, reservationTableRepository, reservation.getCheckIn().toLocalDate()));
 
             newTables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
 
             tableRepository.saveAll(newTables);
 
-            // Gọi lại phương thức chung
             createReservationTables(reservation, newTables, LocalDateTime.now());
         }
 
