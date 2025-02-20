@@ -17,6 +17,17 @@ public enum PermissionAlias {
     LIST_ROLE("roles:list", "Danh sách nhóm quyền", PermissionGroup.ROLE),
     DELETE_ROLE("roles:delete", "Xóa nhóm quyền", PermissionGroup.ROLE),
 
+    CREATE_TABLE("tables:create", "Thêm bàn"),
+    UPDATE_TABLE("tables:update", "Sửa bàn"),
+    LIST_TABLE("tables:list", "Danh sách bàn"),
+    DELETE_TABLE("tables:delete", "Xóa bàn"),
+
+    CREATE_RESERVATION("reservations:create", "Tạo đặt chỗ"),
+    UPDATE_RESERVATION("reservations:update", "Cập nhật đặt chỗ"),
+    LIST_RESERVATION("reservations:list", "Danh sách đặt chỗ"),
+    DELETE_RESERVATION("reservations:delete", "Xóa đặt chỗ"),
+    VIEW_RESERVATION("reservations:view", "Xem chi tiết đặt chỗ"),
+
     CREATE_ATTACHMENT("attachments:create", "Tải lên tệp đính kèm", PermissionGroup.ATTACHMENT),
     UPDATE_ATTACHMENT("attachments:update", "Cập nhật tệp đính kèm", PermissionGroup.ATTACHMENT),
     LIST_ATTACHMENT("attachments:list", "Danh sách tệp đính kèm", PermissionGroup.ATTACHMENT),
@@ -28,6 +39,10 @@ public enum PermissionAlias {
     LIST_SCHEDULE("schedules:list", "Xem danh sách lịch làm việc", PermissionGroup.SCHEDULE),
     DELETE_SCHEDULE("schedules:delete", "Xóa lịch làm việc", PermissionGroup.SCHEDULE),
 
+    CREATE_SALARY_RATE("salary_rate:create", "Thêm mức lương", PermissionGroup.SALARY_RATE),
+    UPDATE_SALARY_RATE("salary_rate:update", "Sửa mức lương", PermissionGroup.SALARY_RATE),
+    LIST_SALARY_RATE("salary_rate:list", "Danh sách mức lương", PermissionGroup.SALARY_RATE),
+    DELETE_SALARY_RATE("salary_rate:delete", "Xóa mức lương", PermissionGroup.SALARY_RATE),
 
     CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
     UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),

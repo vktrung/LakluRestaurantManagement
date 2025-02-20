@@ -17,16 +17,18 @@ public class Category {
 
     @Column(nullable = false, unique = true)
     private String name;
+
     @Column(name = "description")
     private String description;
+
     @Column(name ="created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt = new Date();
+
     @Column(name ="updated_at")
     @Temporal(TemporalType.TIMESTAMP)
     private Date updatedAt = new Date();
+
     @Column(name ="is_deleted")
     private Boolean isDeleted = false;
-
-
 }
