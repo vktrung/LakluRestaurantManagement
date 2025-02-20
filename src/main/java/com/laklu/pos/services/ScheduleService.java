@@ -39,15 +39,15 @@ public class ScheduleService {
         return scheduleRepository.save(schedule);
     }
 
-    public Schedule editSchedule(Long id, NewSchedule newSchedule) {
-        Schedule existingSchedule = this.findOrFail(id);
-        scheduleMapper.updateScheduleFromDto(newSchedule, existingSchedule);
+    public Schedule editSchedule(Schedule schedule, NewSchedule newSchedule) {
+        scheduleMapper.updateScheduleFromDto(newSchedule, schedule);
 
-        return scheduleRepository.save(existingSchedule);
+        return scheduleRepository.save(schedule);
     }
 
     public void deleteSchedule(Long id) {
         Schedule schedule = this.findOrFail(id);
+
         scheduleRepository.delete(schedule);
     }
 }

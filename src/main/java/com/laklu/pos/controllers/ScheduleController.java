@@ -28,7 +28,7 @@ public class ScheduleController {
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(schedulePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
-        // TODO: Thêm phân trang, DTO response
+
         List<Schedule> schedules = scheduleService.getAllSchedules();
 
         return ApiResponseEntity.success(schedules);
@@ -51,7 +51,7 @@ public class ScheduleController {
 
         Ultis.throwUnless(schedulePolicy.canEdit(JwtGuard.userPrincipal(), schedule), new ForbiddenException());
 
-        Schedule updatedSchedule = scheduleService.editSchedule(id, newSchedule);
+        Schedule updatedSchedule = scheduleService.editSchedule(schedule, newSchedule);
 
         return ApiResponseEntity.success(new ScheduleResponse(updatedSchedule));
     }

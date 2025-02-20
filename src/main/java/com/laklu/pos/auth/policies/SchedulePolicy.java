@@ -24,7 +24,7 @@ public class SchedulePolicy implements Policy<Schedule> {
 
     @Override
     public boolean canView(UserPrincipal userPrincipal, Schedule schedule) {
-        return userPrincipal.hasPermission(PermissionAlias.LIST_SCHEDULE);
+        return userPrincipal.hasPermission(PermissionAlias.LIST_SCHEDULE) || userPrincipal.getPersitentUser().getId() == schedule.getStaff().getId();
     }
 
     @Override
