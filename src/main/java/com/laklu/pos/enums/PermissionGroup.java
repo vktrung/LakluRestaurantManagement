@@ -7,6 +7,7 @@ public enum PermissionGroup {
     USER("User Permissions", "USER", "Quyền liên quan đến người dùng"),
     ROLE("Role Permissions", "ROLE", "Quyền liên quan đến vai trò"),
     ATTACHMENT("Attachment Permissions", "ATTACHMENT", "Quyền liên quan đến tệp đính kèm"),
+    SCHEDULE("Schedule Permissions", "SCHEDULE", "Quyền liên quan đến lịch làm việc"),
     CATEGORY("Category Permissions", "CATEGORY", "Quyền liên quan đến danh mục");
 
     private final String label;

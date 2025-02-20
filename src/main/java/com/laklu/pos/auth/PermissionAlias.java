@@ -23,6 +23,12 @@ public enum PermissionAlias {
     DELETE_ATTACHMENT("attachments:delete", "Xóa tệp đính kèm", PermissionGroup.ATTACHMENT),
     VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm", PermissionGroup.ATTACHMENT),
 
+    CREATE_SCHEDULE("schedules:create", "Tạo lịch làm việc", PermissionGroup.SCHEDULE),
+    UPDATE_SCHEDULE("schedules:update", "Cập nhật lịch làm việc", PermissionGroup.SCHEDULE),
+    LIST_SCHEDULE("schedules:list", "Xem danh sách lịch làm việc", PermissionGroup.SCHEDULE),
+    DELETE_SCHEDULE("schedules:delete", "Xóa lịch làm việc", PermissionGroup.SCHEDULE),
+
+
     CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
     UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),
     LIST_CATEGORY("categories:list","Danh sách danh mục", PermissionGroup.CATEGORY),
