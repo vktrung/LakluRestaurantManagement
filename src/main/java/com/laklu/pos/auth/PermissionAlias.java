@@ -34,6 +34,11 @@ public enum PermissionAlias {
     DELETE_ATTACHMENT("attachments:delete", "Xóa tệp đính kèm", PermissionGroup.ATTACHMENT),
     VIEW_ATTACHMENT("attachments:view", "Xem chi tiết tệp đính kèm", PermissionGroup.ATTACHMENT),
 
+    CREATE_SCHEDULE("schedules:create", "Tạo lịch làm việc", PermissionGroup.SCHEDULE),
+    UPDATE_SCHEDULE("schedules:update", "Cập nhật lịch làm việc", PermissionGroup.SCHEDULE),
+    LIST_SCHEDULE("schedules:list", "Xem danh sách lịch làm việc", PermissionGroup.SCHEDULE),
+    DELETE_SCHEDULE("schedules:delete", "Xóa lịch làm việc", PermissionGroup.SCHEDULE),
+
     CREATE_SALARY_RATE("salary_rate:create", "Thêm mức lương", PermissionGroup.SALARY_RATE),
     UPDATE_SALARY_RATE("salary_rate:update", "Sửa mức lương", PermissionGroup.SALARY_RATE),
     LIST_SALARY_RATE("salary_rate:list", "Danh sách mức lương", PermissionGroup.SALARY_RATE),
