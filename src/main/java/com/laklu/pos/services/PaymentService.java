@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,11 +28,19 @@ public class PaymentService {
     MenuItemRepository menuItemRepository;
     ReservationRepository reservationRepository;
 
+    public List<Payment> getAllPayments() {
+        return paymentRepository.findAll();
+    }
+
+    public Payment getPaymentById(int paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(NotFoundException::new);
+    }
+
     public Payment createPayment(int orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(NotFoundException::new);
 
-        //Calculate total price for  OrderItems
         BigDecimal totalAmount = calculateTotalAmount(order);
 
         Payment payment = new Payment();
@@ -50,16 +59,12 @@ public class PaymentService {
         //Get list of orderItem in order
         List<OrderItem> orderItems = orderItemRepository.findByOrderId(order.getId());
         for (OrderItem item : orderItems) {
-            Optional<MenuItem> optionalMenuItem = menuItemRepository.findById(item.getMenuItemId());
-            if (optionalMenuItem.isPresent()) {
-                MenuItem menuItem = optionalMenuItem.get();
-                BigDecimal itemPrice = menuItem.getPrice();
+            MenuItem menuItem = menuItemRepository.findById(item.getMenuItemId())
+                    .orElseThrow(NotFoundException::new);
+            BigDecimal itemPrice = menuItem.getPrice();
 
-                //Calculate total price for each order item(price*quantity)
-                totalAmount = totalAmount.add(itemPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
-            } else {
-                log.warn("MenuItem with ID {} not found for OrderItem ID {}", item.getMenuItemId(), item.getId());
-            }
+            //Calculate total price for each order item(price*quantity)
+            totalAmount = totalAmount.add(itemPrice.multiply(BigDecimal.valueOf(item.getQuantity())));
         }
         return totalAmount;
     }
@@ -76,17 +81,18 @@ public class PaymentService {
         return "https://qr.sepay.vn/img?bank=" + bank
                 + "&acc=" + account
                 + "&amount=" + amount
-                + "&des=" + description;
+                + "&des=" + description
+                + "&paymentId=" + paymentId;
     }
 
     @Transactional
-    public void processPaymentWebhook(String paymentStatus, int paymentId) {
-        Optional<Payment> optionalPayment = paymentRepository.findById(paymentId);
-        if (!optionalPayment.isPresent()) {
-            throw new NotFoundException();
+    public void processPaymentWebhook(String paymentStatus, int paymentId, BigDecimal amount) {
+        Payment payment = paymentRepository.findById(paymentId)
+                .orElseThrow(NotFoundException::new);
+        if(payment.getAmountPaid().compareTo(amount) != 0) {
+            throw new IllegalArgumentException("Payment amount does not match");
         }
 
-        Payment payment = optionalPayment.get();
         switch (paymentStatus) {
             case "SUCCESS":
                 payment.setPaymentStatus(PaymentStatus.SUCCESS);
@@ -103,11 +109,11 @@ public class PaymentService {
         paymentRepository.save(payment);
 
         if ("SUCCESS".equals(paymentStatus)) {
-            updateOrdeStatus(payment.getOrder());
+            updateOrderStatus(payment.getOrder());
         }
     }
 
-    private void updateOrdeStatus(Order order) {
+    private void updateOrderStatus(Order order) {
         order.setUpdatedAt(java.time.LocalDateTime.now());
         Reservation reservation = reservationRepository.findById(order.getReservationId())
                 .orElseThrow(NotFoundException::new);

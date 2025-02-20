@@ -20,7 +20,14 @@ public enum PermissionAlias {
     CREATE_ROLE("roles:create", "Thêm nhóm quyền"),
     UPDATE_ROLE("roles:update", "Sửa nhóm quyền"),
     LIST_ROLE("roles:list", "Danh sách nhóm quyền"),
-    DELETE_ROLE("roles:delete", "Xóa nhóm quyền");
+    DELETE_ROLE("roles:delete", "Xóa nhóm quyền"),
+
+    CREATE_PAYMENT("payments:create", "Tạo thanh toán"),
+    UPDATE_PAYMENT("payments:update", "Sửa thanh toán"),
+    LIST_PAYMENT("payments:list", "Danh sách thanh toán"),
+    DELETE_PAYMENT("payments:delete", "Xóa thanh toán"),
+    VIEW_PAYMENT("payments:view", "Xem thanh toán");
+
 
 
     PermissionAlias(String alias, String name) {
