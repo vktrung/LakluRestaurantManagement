@@ -7,7 +7,9 @@ public enum PermissionGroup {
     USER("User Permissions", "USER", "Quyền liên quan đến người dùng"),
     ROLE("Role Permissions", "ROLE", "Quyền liên quan đến vai trò"),
     ATTACHMENT("Attachment Permissions", "ATTACHMENT", "Quyền liên quan đến tệp đính kèm"),
-    CATEGORY("Category Permissions", "CATEGORY", "Quyền liên quan đến danh mục");
+    CATEGORY("Category Permissions", "CATEGORY", "Quyền liên quan đến danh mục"),
+    SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương");
+
 
     private final String label;
     private final String alias;
