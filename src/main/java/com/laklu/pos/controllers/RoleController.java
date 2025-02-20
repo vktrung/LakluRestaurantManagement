@@ -6,6 +6,7 @@ import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewRole;
 import com.laklu.pos.dataObjects.request.UpdateRole;
 import com.laklu.pos.dataObjects.response.RoleResource;
+import com.laklu.pos.dataObjects.response.RoleResponse;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.services.RoleService;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/roles")
@@ -38,7 +40,16 @@ public class RoleController {
 
         List<Role> roles = roleService.getAllRoles();
 
-        return ApiResponseEntity.success(roles.stream().map(RoleResource::new).toList());
+        List<RoleResponse> roleResponses = roles.stream()
+                .map(role -> new RoleResponse(
+                        role.getId(),
+                        role.getName(),
+                        role.getDescription(),
+                        role.getUsers().size()
+                ))
+                .collect(Collectors.toList());
+
+        return ApiResponseEntity.success(roleResponses);
     }
 
     @GetMapping("/{id}")

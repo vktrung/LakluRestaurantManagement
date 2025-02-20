@@ -2,6 +2,7 @@ package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.NewRole;
 import com.laklu.pos.dataObjects.request.UpdateRole;
+import com.laklu.pos.dataObjects.response.RoleResponse;
 import com.laklu.pos.entities.Permission;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
@@ -14,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor

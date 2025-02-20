@@ -28,7 +28,6 @@ public enum ExceptionCode {
 
     INVALID_TOKEN(401, "Sai token", HttpStatus.UNAUTHORIZED);
 
-
     ExceptionCode(int code, String message, HttpStatus statusCode) {
         this.code = code;
         this.message = message;
