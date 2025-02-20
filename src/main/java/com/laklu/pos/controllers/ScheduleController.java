@@ -4,6 +4,7 @@ import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.SchedulePolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewSchedule;
+import com.laklu.pos.dataObjects.response.ScheduleResponse;
 import com.laklu.pos.entities.Schedule;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.ScheduleService;
@@ -12,6 +13,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 @AllArgsConstructor
@@ -63,4 +66,4 @@ public class ScheduleController {
         return ApiResponseEntity.success("Xóa lịch làm việc thành công");
     }
 }
-}
+
