@@ -44,6 +44,18 @@ public class ScheduleController {
         return ApiResponseEntity.success(new ScheduleResponse(createdSchedule));
     }
 
+    // Cập nhật lịch làm việc theo ID
+    @PutMapping("/{id}")
+    public ApiResponseEntity update(@PathVariable Long id, @RequestBody @Validated NewSchedule newSchedule) throws Exception {
+        var schedule = scheduleService.findOrFail(id);
+
+        Ultis.throwUnless(schedulePolicy.canEdit(JwtGuard.userPrincipal(), schedule), new ForbiddenException());
+
+        Schedule updatedSchedule = scheduleService.editSchedule(id, newSchedule);
+
+        return ApiResponseEntity.success(new ScheduleResponse(updatedSchedule));
+    }
+
     // Lấy chi tiết lịch làm việc theo ID
     @GetMapping("/{id}")
     public ApiResponseEntity show(@PathVariable Long id) throws Exception {
