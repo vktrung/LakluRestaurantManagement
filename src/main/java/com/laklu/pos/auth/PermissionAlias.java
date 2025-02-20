@@ -26,7 +26,13 @@ public enum PermissionAlias {
     CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
     UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),
     LIST_CATEGORY("categories:list","Danh sách danh mục", PermissionGroup.CATEGORY),
-    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY);
+    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY),
+
+    CREATE_MENU_ITEM("menuItems:create","Thêm món ăn", PermissionGroup.MENU_ITEM),
+    UPDATE_MENU_ITEM("menuItems:update","Sửa món ăn", PermissionGroup.MENU_ITEM),
+    LIST_MENU_ITEM("menuItems:list","Danh sách món ăn", PermissionGroup.MENU_ITEM),
+    VIEW_MENU_ITEM("menuItems:view","Xem chi tiết món ăn", PermissionGroup.MENU_ITEM),
+    DELETE_MENU_ITEM("menuItems:delete","Xóa món ăn", PermissionGroup.MENU_ITEM);
 
     PermissionAlias(String alias, String name, PermissionGroup group) {
         this.alias = alias;

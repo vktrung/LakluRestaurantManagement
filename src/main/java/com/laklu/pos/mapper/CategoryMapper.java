@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = MenuItemMapper.class)
 public interface CategoryMapper {
 
 
@@ -18,9 +18,11 @@ public interface CategoryMapper {
     @Mapping(target = "createdAt", ignore = true) // createdAt không map từ request
     @Mapping(target = "updatedAt", ignore = true) // updatedAt không map từ request
     @Mapping(target = "isDeleted", ignore = true) // Trạng thái xóa không map từ request
+    @Mapping(target = "menuItems", ignore = true) // menuItems không map từ request
     Category toEntity(CategoryRequest request);
 
     // Chuyển từ Entity -> Response DTO
+    @Mapping(target = "menuItems", source = "menuItems")
     CategoryResponse toResponse(Category category);
 
     // Chuyển danh sách Entity -> danh sách Response DTO

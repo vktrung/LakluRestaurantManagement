@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,4 +20,6 @@ public class CategoryResponse
     private Date createdAt;
     private Date updatedAt;
     private Boolean isDeleted;
+
+    private List<MenuItemResponse> menuItems;
 }

@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
@@ -24,10 +25,6 @@ public class MenuItem {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @ManyToOne
-    @JoinColumn(name = "category_id", nullable = false)
-    private Category category;
-
     @Column(name ="created_at", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdAt = new Date();
@@ -38,4 +35,9 @@ public class MenuItem {
 
     @Column(name ="is_deleted")
     private Boolean isDeleted = false;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnore
+    private Category category;
 }

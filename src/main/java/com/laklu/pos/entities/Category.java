@@ -3,6 +3,7 @@ package com.laklu.pos.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "categories")
@@ -27,6 +28,7 @@ public class Category {
     private Date updatedAt = new Date();
     @Column(name ="is_deleted")
     private Boolean isDeleted = false;
-
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MenuItem> menuItems;
 
 }

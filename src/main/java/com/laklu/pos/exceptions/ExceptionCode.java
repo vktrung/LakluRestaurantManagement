@@ -30,7 +30,9 @@ public enum ExceptionCode {
 
     CATEGORY_ALREADY_EXISTS(400, "Category với tên đã tồn tại", HttpStatus.BAD_REQUEST),
 
-    NOT_FOUND_CATEGORY(404, "Không tìm thấy category", HttpStatus.NOT_FOUND);
+    NOT_FOUND_CATEGORY(404, "Không tìm thấy category", HttpStatus.NOT_FOUND),
+
+    NOT_FOUND_MENU_ITEM(404, "Không tìm thấy menu item", HttpStatus.NOT_FOUND);
 
     ExceptionCode(int code, String message, HttpStatus statusCode) {
         this.code = code;
