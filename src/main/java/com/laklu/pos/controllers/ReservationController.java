@@ -14,6 +14,8 @@ import com.laklu.pos.services.ReservationService;
 import com.laklu.pos.uiltis.Ultis;
 import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.TableMustAvailable;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/reservations")
 @RequiredArgsConstructor
+@Tag(name = "Reservation Controller", description = "Quản lý thông tin đặt bàn")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ReservationController {
 
@@ -34,6 +37,7 @@ public class ReservationController {
     TableRepository tableRepository;
     ReservationTableRepository reservationTableRepository;
 
+    @Operation(summary = "Tạo đặt bàn", description = "API này dùng để tạo đặt bàn mới")
     @PostMapping("/")
     public ApiResponseEntity store(@Valid @RequestBody ReservationRequest request) throws Exception {
         Ultis.throwUnless(reservationPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -49,7 +53,7 @@ public class ReservationController {
         return ApiResponseEntity.success(reservation);
     }
 
-
+    @Operation(summary = "Cập nhật đặt bàn", description = "API này dùng để cập nhật thông tin đặt bàn")
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody UpdateReservationRequest request) throws Exception {
         Reservation reservation = reservationService.findOrFail(id);

@@ -10,6 +10,8 @@ import com.laklu.pos.enums.PermissionGroup;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.PermissionService;
 import com.laklu.pos.uiltis.Ultis;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,12 +24,14 @@ import static java.util.stream.Collectors.groupingBy;
 
 @RestController
 @RequestMapping("/api/v1/permissions")
+@Tag(name = "Permission Controller", description = "Quản lý quyền")
 @AllArgsConstructor
 public class PermissionControler {
 
     private final PermissionService permissionService;
     private final UserPolicy userPolicy;
 
+    @Operation(summary = "Lấy danh sách quyền", description = "API này dùng để lấy toàn bộ các quyền")
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(userPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -53,6 +57,7 @@ public class PermissionControler {
         return ApiResponseEntity.success(result);
     }
 
+    @Operation(summary = "Cập nhật mô tả quyền", description = "API này dùng để cập nhật mô tả quyền")
     @GetMapping("/{id}")
     public ApiResponseEntity updateDescription(@PathVariable int id,@RequestBody String description) throws Exception {
         Ultis.throwUnless(userPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());

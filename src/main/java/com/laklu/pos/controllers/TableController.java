@@ -12,6 +12,8 @@ import com.laklu.pos.services.TableService;
 import com.laklu.pos.uiltis.Ultis;
 import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.TableMustBeUnique;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -28,11 +30,13 @@ import java.util.function.Function;
 @RestController
 @RequestMapping("api/v1/tables")
 @RequiredArgsConstructor
+@Tag(name = "Table Controller", description = "Quản lý thông tin người dùng")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TableController {
     TableService tableService;
     TablePolicy tablePolicy;
 
+    @Operation(summary = "Lấy danh sách bàn", description = "API này dùng để lấy toàn bộ các bạn của quán")
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(tablePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -42,6 +46,7 @@ public class TableController {
         return ApiResponseEntity.success(tables);
     }
 
+    @Operation(summary = "Tạo bàn", description = "API này dùng để tạo bán mới")
     @PostMapping("/")
     public ApiResponseEntity store(@Valid @RequestBody NewTable request) throws Exception{
         Ultis.throwUnless(tablePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -55,6 +60,7 @@ public class TableController {
         return ApiResponseEntity.success(new TableResponse(tables));
     }
 
+    @Operation(summary = "Hiện thị bàn theo id bàn", description = "API này dùng để lấy thông tin bàn theo id bàn")
     @GetMapping("/{id}")
     public ApiResponseEntity show(@PathVariable Integer id) throws Exception {
         Tables tables = tableService.findOrFail(id);
@@ -65,6 +71,7 @@ public class TableController {
         return ApiResponseEntity.success(new TableResponse(tables));
     }
 
+    @Operation(summary = "Cập nhật bàn", description = "API này dùng để cập nhật thông tin bàn")
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
         Tables tables = tableService.findOrFail(id);
@@ -76,6 +83,7 @@ public class TableController {
         return ApiResponseEntity.success(new TableResponse(updatedTables));
     }
 
+    @Operation(summary = "Xoá bàn", description = "API này dùng để xoá bàn theo id")
     @DeleteMapping("/{id}")
     public ApiResponseEntity delete(@PathVariable Integer id) throws Exception {
         Ultis.throwUnless(tablePolicy.canDelete(JwtGuard.userPrincipal(), tableService.findOrFail(id)), new ForbiddenException());
@@ -85,6 +93,7 @@ public class TableController {
         return ApiResponseEntity.success("Table deleted successfully.");
     }
 
+    @Operation(summary = "Kiểm tra và cập nhật trạng thái bàn", description = "API này dùng để kiểm tra và cập nhật trạng thái bàn khi có người đặt bàn")
     @GetMapping("/check-table-status")
     public ApiResponseEntity checkTableStatus()  throws Exception {
         Ultis.throwUnless(tablePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());

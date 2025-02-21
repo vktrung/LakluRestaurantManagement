@@ -8,6 +8,8 @@ import com.laklu.pos.entities.SalaryRate;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.SalaryRateService;
 import com.laklu.pos.uiltis.Ultis;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +19,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/salary-rates")
 @AllArgsConstructor
+@Tag(name = "Salary Rate Controller", description = "Quản lý mức lương")
 public class SalaryRateController {
 
     private final SalaryRateService salaryRateService;
     private final SalaryRatePolicy salaryRatePolicy;
 
+    @Operation(summary = "Lấy danh sách mức lương", description = "API này dùng để lấy toàn bộ các mức lương")
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(salaryRatePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -29,6 +33,7 @@ public class SalaryRateController {
         return ApiResponseEntity.success(salaryRates);
     }
 
+    @Operation(summary = "Tạo mức lương", description = "API này dùng để tạo mức lương mới")
     @PostMapping("/")
     public ApiResponseEntity store(@RequestBody NewSalaryRate newSalaryRate) throws Exception {
         Ultis.throwUnless(salaryRatePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -36,6 +41,7 @@ public class SalaryRateController {
         return ApiResponseEntity.success(salaryRate);
     }
 
+    @Operation(summary = "Cập nhật mức lương", description = "API này dùng để cập nhật thông tin mức lương")
     @PutMapping("/{id}")
     public ApiResponseEntity updateSalaryRate(@PathVariable Integer id, @RequestBody NewSalaryRate newSalaryRate) throws Exception{
         var salaryRate = salaryRateService.findOrFail(id);
@@ -44,6 +50,7 @@ public class SalaryRateController {
         return ApiResponseEntity.success(updatedSalaryRate);
     }
 
+    @Operation(summary = "Xóa mức lương", description = "API này dùng để xóa mức lương")
     @DeleteMapping("/{id}")
     public ApiResponseEntity deleteSalaryRate(@PathVariable Integer id) {
         SalaryRate salaryRate = salaryRateService.findOrFail(id);
