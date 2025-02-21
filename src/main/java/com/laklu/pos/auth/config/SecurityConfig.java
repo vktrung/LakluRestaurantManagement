@@ -25,6 +25,8 @@ import java.util.ArrayList;
 @EnableWebSecurity
 public class SecurityConfig {
 
+    @Value("${web.cors.allowed-origins}")
+    private String webCorsOrigin;
     @Value("${app-setup.alreadySetup}")
     private Boolean alreadySetup;
     private final JwtFilter jwtFilter;
@@ -70,7 +72,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configurationSource = new CorsConfiguration();
-        configurationSource.addAllowedOriginPattern("*");
+        configurationSource.addAllowedOrigin(webCorsOrigin);
         configurationSource.addAllowedHeader("*");
         configurationSource.addAllowedMethod(HttpMethod.GET);
         configurationSource.addAllowedMethod(HttpMethod.POST);
