@@ -9,6 +9,8 @@ import com.laklu.pos.entities.Schedule;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.ScheduleService;
 import com.laklu.pos.uiltis.Ultis;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
@@ -19,12 +21,14 @@ import java.util.List;
 @Controller
 @AllArgsConstructor
 @RequestMapping("/api/v1/schedule")
+@Tag(name = "Schedule Controller", description = "Quản lý lịch làm việc")
 public class ScheduleController {
 
     private final SchedulePolicy schedulePolicy;
     private final ScheduleService scheduleService;
 
     // Lấy danh sách lịch làm việc
+    @Operation(summary = "Lấy danh sách tất cả lịch làm việc", description = "API này dùng để lấy toàn bộ các bạn của quán")
     @GetMapping("/")
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(schedulePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -35,6 +39,7 @@ public class ScheduleController {
     }
 
     // Tạo mới lịch làm việc
+    @Operation(summary = "Tạo lịch làm việc", description = "API này dùng để tạo lịch làm việc mới")
     @PostMapping("/")
     public ApiResponseEntity store(@RequestBody @Validated NewSchedule newSchedule) throws Exception {
         Ultis.throwUnless(schedulePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -45,6 +50,7 @@ public class ScheduleController {
     }
 
     // Cập nhật lịch làm việc theo ID
+    @Operation(summary = "Cập nhật lịch làm việc", description = "API này dùng để cập nhật thông tin lịch làm việc")
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Long id, @RequestBody @Validated NewSchedule newSchedule) throws Exception {
         var schedule = scheduleService.findOrFail(id);
@@ -57,6 +63,7 @@ public class ScheduleController {
     }
 
     // Lấy chi tiết lịch làm việc theo ID
+    @Operation(summary = "Hiện thị lịch làm việc theo ID", description = "API này dùng để lấy thông tin lịch làm việc theo ID")
     @GetMapping("/{id}")
     public ApiResponseEntity show(@PathVariable Long id) throws Exception {
         var schedule = scheduleService.findOrFail(id);
@@ -67,6 +74,7 @@ public class ScheduleController {
     }
 
     // Xóa lịch làm việc theo ID
+    @Operation(summary = "Xóa lịch làm việc theo ID", description = "API này dùng để xóa thông tin lịch làm việc theo ID")
     @DeleteMapping("/{id}")
     public ApiResponseEntity delete(@PathVariable Long id) throws Exception {
         var schedule = scheduleService.findOrFail(id);

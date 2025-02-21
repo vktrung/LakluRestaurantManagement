@@ -9,6 +9,8 @@ public enum PermissionGroup {
     ATTACHMENT("Attachment Permissions", "ATTACHMENT", "Quyền liên quan đến tệp đính kèm"),
     SCHEDULE("Schedule Permissions", "SCHEDULE", "Quyền liên quan đến lịch làm việc"),
     CATEGORY("Category Permissions", "CATEGORY", "Quyền liên quan đến danh mục"),
+    TABLE("Table Permissions", "TABLE", "Quyền liên quan đến bàn"),
+    RESERVATION("Reservation Permissions", "RESERVATION", "Quyền liên quan đến đặt chỗ"),
     SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương");
 
     private final String label;
