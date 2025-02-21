@@ -7,6 +7,8 @@ import com.laklu.pos.entities.User;
 import com.laklu.pos.repositories.PermissionRepository;
 import com.laklu.pos.repositories.RoleRepository;
 import com.laklu.pos.repositories.UserRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/setup")
+@Tag(name = "Setup Controller", description = "Khởi tạo admin và các quyền hạn")
 public class SetupController {
 
     @Value("${app-setup.adminUsername}")
@@ -39,6 +42,7 @@ public class SetupController {
         this.userRepository = userRepository;
     }
 
+    @Operation(summary = "Khởi tạo các permissions dự án có")
     @GetMapping("/permissions")
     public String setUpPermissions() {
         List<Permission> permissions = permissionRepository.findAll();
@@ -62,6 +66,7 @@ public class SetupController {
         return "Setup permissions";
     }
 
+    @Operation(summary = "Tạo tài khoản super admin")
     @GetMapping("/super-admin")
     public String setUpSuperAdmin() {
         Role role = new Role();
@@ -79,6 +84,4 @@ public class SetupController {
 
         return "Setup super admin";
     }
-
-
 }

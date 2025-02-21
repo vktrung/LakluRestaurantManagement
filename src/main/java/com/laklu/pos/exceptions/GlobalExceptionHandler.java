@@ -2,6 +2,7 @@ package com.laklu.pos.exceptions;
 
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.support.MissingServletRequestPartExcept
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
