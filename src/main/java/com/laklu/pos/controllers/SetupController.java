@@ -57,6 +57,7 @@ public class SetupController {
                 Permission permission = new Permission();
                 permission.setAlias(permissionAlias.getAlias());
                 permission.setName(permissionAlias.getName());
+                permission.setPermissionGroup(permissionAlias.getGroup());
                 newPermission.add(permission);
             }
         });
@@ -83,6 +84,4 @@ public class SetupController {
 
         return "Setup super admin";
     }
-
-
 }

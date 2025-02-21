@@ -20,7 +20,6 @@ app-setup:
   adminPassword: admin
   adminEmail: example@gmail.com
 
-
 springdoc:
   api-docs:
     enabled: true
@@ -29,3 +28,8 @@ springdoc:
     path: /swagger-ui.html
     display-request-duration: true
     operations-sorter: method
+
+app:
+  base:
+    url: http://localhost:8080
+    attachment-endpoint: /api/v1/attachments
