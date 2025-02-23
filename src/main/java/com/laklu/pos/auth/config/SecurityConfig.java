@@ -21,6 +21,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -51,6 +53,7 @@ public class SecurityConfig {
             whiteListRoutes.add("/api/v1/setup/super-admin");
         }
 
+        http.cors(withDefaults());
         http.csrf(AbstractHttpConfigurer::disable);
         http.sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authorizeHttpRequests((authorizeRequests) ->
