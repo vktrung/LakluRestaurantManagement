@@ -47,7 +47,12 @@ public enum PermissionAlias {
     CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
     UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),
     LIST_CATEGORY("categories:list","Danh sách danh mục", PermissionGroup.CATEGORY),
-    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY);
+    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY),
+
+    CREATE_PAYMENT("payments:create", "Tạo hóa đơn thanh toán", PermissionGroup.PAYMENT),
+    LIST_PAYMENT("payments:list", "Danh sách hóa đơn thanh toán", PermissionGroup.PAYMENT),
+    VIEW_PAYMENT("payments:view", "Xem chi tiết hóa đơn thanh toán", PermissionGroup.PAYMENT),
+    DELETE_PAYMENT("payments:delete", "Xóa hóa đơn thanh toán", PermissionGroup.PAYMENT);
 
     PermissionAlias(String alias, String name, PermissionGroup group) {
         this.alias = alias;
