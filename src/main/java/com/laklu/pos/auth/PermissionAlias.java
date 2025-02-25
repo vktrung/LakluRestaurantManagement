@@ -44,6 +44,21 @@ public enum PermissionAlias {
     LIST_SALARY_RATE("salary_rate:list", "Danh sách mức lương", PermissionGroup.SALARY_RATE),
     DELETE_SALARY_RATE("salary_rate:delete", "Xóa mức lương", PermissionGroup.SALARY_RATE),
 
+    CREATE_MENU("menus:create", "Thêm menu", PermissionGroup.MENU),
+    UPDATE_MENU("menus:update", "Sửa menu", PermissionGroup.MENU),
+    LIST_MENU("menus:list", "Danh sách menu", PermissionGroup.MENU),
+    DELETE_MENU("menus:delete", "Xóa menu", PermissionGroup.MENU),
+
+    CREATE_MENU_ITEM("menu_items:create", "Thêm mục menu", PermissionGroup.MENU_ITEM),
+    UPDATE_MENU_ITEM("menu_items:update", "Sửa mục menu", PermissionGroup.MENU_ITEM),
+    LIST_MENU_ITEM("menu_items:list", "Danh sách mục menu", PermissionGroup.MENU_ITEM),
+    DELETE_MENU_ITEM("menu_items:delete", "Xóa mục menu", PermissionGroup.MENU_ITEM),
+
+    CREATE_DISH("dishes:create", "Thêm món ăn", PermissionGroup.DISH),
+    UPDATE_DISH("dishes:update", "Sửa món ăn", PermissionGroup.DISH),
+    LIST_DISH("dishes:list", "Danh sách món ăn", PermissionGroup.DISH),
+    DELETE_DISH("dishes:delete", "Xóa món ăn", PermissionGroup.DISH),
+
     CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
     UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),
     LIST_CATEGORY("categories:list","Danh sách danh mục", PermissionGroup.CATEGORY),

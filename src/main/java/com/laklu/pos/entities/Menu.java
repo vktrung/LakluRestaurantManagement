@@ -1,31 +1,34 @@
 package com.laklu.pos.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-@Table(name = "category")
-@Getter
-@Setter
+@Table(name = "menu")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+public class Menu {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "start_at", nullable = false)
+    private LocalDateTime startAt;
 
-    @Column(name ="is_deleted")
-    private Boolean isDeleted = false;
+    @Column(name = "end_at", nullable = false)
+    private LocalDateTime endAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MenuStatus status;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -33,8 +36,12 @@ public class Category {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "menu", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MenuItem> menuItems;
+
+    public enum MenuStatus {
+        DISABLE, ENABLE
+    }
 
     @PrePersist
     protected void onCreate() {

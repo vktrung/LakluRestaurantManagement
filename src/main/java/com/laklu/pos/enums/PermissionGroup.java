@@ -11,6 +11,9 @@ public enum PermissionGroup {
     CATEGORY("Category Permissions", "CATEGORY", "Quyền liên quan đến danh mục"),
     TABLE("Table Permissions", "TABLE", "Quyền liên quan đến bàn"),
     RESERVATION("Reservation Permissions", "RESERVATION", "Quyền liên quan đến đặt chỗ"),
+    MENU("Menu Permissions", "MENU", "Quyền liên quan đến menu"),
+    DISH("Dish Permissions", "DISH", "Quyền liên quan đến món ăn"),
+    MENU_ITEM("Menu Item Permissions", "MENU_ITEM", "Quyền liên quan đến mục menu"),
     SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương");
 
     private final String label;

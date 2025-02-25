@@ -28,7 +28,7 @@ public class Permission implements GrantedAuthority {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 12)
     private PermissionGroup permissionGroup;
 
     @ManyToMany(mappedBy = "permissions")
