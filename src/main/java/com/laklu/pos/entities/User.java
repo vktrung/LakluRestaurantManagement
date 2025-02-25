@@ -39,6 +39,11 @@ public class User implements Identifiable<Integer> {
     @Column()
     private String avatar;
 
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "salary_rate_id")
+    private SalaryRate salaryRate;
+
     @Override
     public Integer getId() {
         return id;

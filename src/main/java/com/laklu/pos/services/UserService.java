@@ -3,6 +3,7 @@ package com.laklu.pos.services;
 import com.laklu.pos.dataObjects.request.NewUser;
 import com.laklu.pos.dataObjects.response.UserInfo;
 import com.laklu.pos.entities.Role;
+import com.laklu.pos.entities.SalaryRate;
 import com.laklu.pos.entities.User;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.RoleRepository;
@@ -29,6 +30,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final SalaryRateService salaryRateService;
     private final RoleRepository roleRepository;
 
     public List<User> getAll() {
@@ -49,6 +51,9 @@ public class UserService {
                         .orElseThrow())
                 .collect(Collectors.toSet());
         newUser.setRoles(roles);
+
+        SalaryRate salaryRate = salaryRateService.findOrFail(user.getSalaryRateId());
+        newUser.setSalaryRate(salaryRate);
 
         return userRepository.save(newUser);
     }

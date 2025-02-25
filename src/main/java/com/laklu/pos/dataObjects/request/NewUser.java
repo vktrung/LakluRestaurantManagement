@@ -17,4 +17,6 @@ public class NewUser {
     private String email;
     @NotNull
     private List<Integer> roleIds;
+    @NotNull
+    private Integer salaryRateId;
 }
