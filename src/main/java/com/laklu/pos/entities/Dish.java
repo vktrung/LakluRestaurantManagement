@@ -1,37 +1,26 @@
 package com.laklu.pos.entities;
 
-import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
 
 @Entity
-@jakarta.persistence.Table(name = "category")
-@Getter
-@Setter
+@Table(name = "dish")
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@EntityListeners(ActivityLogListener.class)
-public class Category implements Identifiable<Long> {
+public class Dish {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String name;
 
-    @Column(name = "description")
     private String description;
-
-    @Column(name ="is_deleted")
-    private Boolean isDeleted = false;
-
-    @Override
-    public Long getId() { // Trả về String thay vì Integer
-        return id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -39,7 +28,7 @@ public class Category implements Identifiable<Long> {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "dish", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MenuItem> menuItems;
 
     @PrePersist
