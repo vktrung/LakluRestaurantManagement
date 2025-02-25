@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(ActivityLogListener.class)
+//@EntityListeners(ActivityLogListener.class)
 public class User implements Identifiable<Integer> {
 
     @Id

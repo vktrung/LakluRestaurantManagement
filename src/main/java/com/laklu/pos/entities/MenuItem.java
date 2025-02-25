@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -9,11 +10,12 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "menu_item")
+@jakarta.persistence.Table(name = "menu_item")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MenuItem {
+@EntityListeners(ActivityLogListener.class)
+public class MenuItem implements Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id; // Thêm khóa chính để quản lý bản ghi
@@ -44,6 +46,11 @@ public class MenuItem {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
 
     @PrePersist
     protected void onCreate() {

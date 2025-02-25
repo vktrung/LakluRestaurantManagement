@@ -8,11 +8,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "dish")
+@jakarta.persistence.Table(name = "dish")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dish {
+public class Dish implements Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -30,6 +30,11 @@ public class Dish {
 
     @OneToMany(mappedBy = "dish", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MenuItem> menuItems;
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
 
     @PrePersist
     protected void onCreate() {

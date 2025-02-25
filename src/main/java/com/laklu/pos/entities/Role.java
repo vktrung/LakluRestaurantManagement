@@ -12,7 +12,7 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@EntityListeners(ActivityLogListener.class)
+//@EntityListeners(ActivityLogListener.class)
 public class Role implements Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,11 +9,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "menu")
+@jakarta.persistence.Table(name = "menu")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Menu {
+@EntityListeners(ActivityLogListener.class)
+public class Menu implements Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -41,6 +43,11 @@ public class Menu {
 
     public enum MenuStatus {
         DISABLE, ENABLE
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
     }
 
     @PrePersist

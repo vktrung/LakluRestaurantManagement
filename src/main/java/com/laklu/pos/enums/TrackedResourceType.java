@@ -7,6 +7,14 @@ public enum TrackedResourceType {
     CATEGORY("Danh mục"),
     PERMISSION("Quyền"),
     TABLE("Bàn"),
+    MENU("Thực đơn"),
+    MENU_ITEM("Món ăn trong thực đơn"),
+    DISH("Món ăn"),
+    SCHEDULE("Lịch làm việc"),
+    SALARY_RATE("Mức lương"),
+    ROLE("Vai trò"),
+    RESERVATIONTABLE("Bàn đặt"),
+    RESERVATION("Đặt bàn"),
     PAYMENT("Thanh toán");
 
     private final String displayName;
