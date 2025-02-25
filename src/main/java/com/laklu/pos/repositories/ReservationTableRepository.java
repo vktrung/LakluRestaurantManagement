@@ -15,12 +15,12 @@ public interface ReservationTableRepository extends JpaRepository<ReservationTab
     List<ReservationTable> findByReservation(Reservation reservation);
 
     @Query("SELECT COUNT(rt) FROM ReservationTable rt " +
-            "WHERE rt.tables.id = :tableId " +
+            "WHERE rt.table.id = :tableId " +
             "AND FUNCTION('DATE', rt.reservation.reservationTime) = :date")
     long countByTableAndDate(@Param("tableId") Integer tableId, @Param("date") LocalDate date);
 
     @Query("SELECT COUNT(rt) FROM ReservationTable rt " +
-            "WHERE rt.tables.id = :tableId " +
+            "WHERE rt.table.id = :tableId " +
             "AND FUNCTION('DATE', rt.reservation.checkIn) = :date " +
             "AND rt.reservation.status <> 'COMPLETED'")
     long countByTableAndDateAndNotCompleted(@Param("tableId") Integer tableId, @Param("date") LocalDate date);

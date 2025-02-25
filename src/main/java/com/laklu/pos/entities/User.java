@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import com.laklu.pos.valueObjects.UserPrincipal;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +13,8 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+@EntityListeners(ActivityLogListener.class)
+public class User implements Identifiable<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +38,11 @@ public class User {
     @Setter
     @Column()
     private String avatar;
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

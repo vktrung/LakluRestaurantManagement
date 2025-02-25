@@ -1,16 +1,18 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.*;
 import java.util.Date;
 
 @Entity
-@Table(name = "categories")
+@jakarta.persistence.Table(name = "categories")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Category {
+@EntityListeners(ActivityLogListener.class)
+public class Category implements Identifiable<Long> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,4 +33,9 @@ public class Category {
 
     @Column(name ="is_deleted")
     private Boolean isDeleted = false;
+
+    @Override
+    public Long getId() { // Trả về String thay vì Integer
+        return id;
+    }
 }

@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReservationTable {
+@EntityListeners(ActivityLogListener.class)
+public class ReservationTable implements Identifiable<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +25,8 @@ public class ReservationTable {
     Reservation reservation;
 
     @ManyToOne
-    @JoinColumn(name = "table_id", nullable = false)
-    Tables tables;
+    @JoinColumn(name = "table_id", nullable = false,table = "reservation_table")
+    Table table;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     LocalDateTime createdAt;
@@ -32,5 +34,10 @@ public class ReservationTable {
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
+    }
+
+    @Override
+    public Integer getId() { // Trả về String thay vì Integer
+        return id;
     }
 }

@@ -58,7 +58,7 @@ public class PermissionControler {
     }
 
     @Operation(summary = "Cập nhật mô tả quyền", description = "API này dùng để cập nhật mô tả quyền")
-    @GetMapping("/{id}")
+    @PutMapping("/{id}")
     public ApiResponseEntity updateDescription(@PathVariable int id,@RequestBody String description) throws Exception {
         Ultis.throwUnless(userPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 

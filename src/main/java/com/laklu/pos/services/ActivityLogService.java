@@ -1,30 +1,55 @@
 package com.laklu.pos.services;
 
-import com.laklu.pos.repositories.ActivityLogRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
+import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.entities.ActivityLog;
+import com.laklu.pos.enums.TrackedResourceType;
+import com.laklu.pos.repositories.ActivityLogRepository;
+import com.laklu.pos.entities.Identifiable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import com.laklu.pos.enums.TrackedResourceType.Action;
+
+import java.util.List;
 
 @Service
-@AllArgsConstructor
 public class ActivityLogService {
-
     private final ActivityLogRepository activityLogRepository;
 
-    // Phương thức ghi log vào bảng activity_logs
-    public void logActivity(String staffId, String action, String target, String targetId, String details) {
-        if (staffId == null) {
-            throw new IllegalArgumentException("Staff ID cannot be null.");
-        }
-        ActivityLog activityLog = new ActivityLog();
-        activityLog.setStaffId(Integer.parseInt(staffId));
-        activityLog.setAction(action);
-        activityLog.setTarget(target);
-        activityLog.setTargetId(targetId.toString());
-        activityLog.setDetails(details);
-        activityLog.setCreatedAt(java.time.LocalDateTime.now());  // Lưu thời gian hiện tại
+    @Autowired
+    public ActivityLogService(ActivityLogRepository activityLogRepository) {
+        this.activityLogRepository = activityLogRepository;
+    }
 
-        // Lưu vào cơ sở dữ liệu
-        activityLogRepository.save(activityLog);
+    public void logActivity(Object entity, TrackedResourceType.Action action, String targetId, TrackedResourceType resourceType) {
+        ActivityLog log = new ActivityLog();
+        log.setStaffId(getCurrentStaffId());
+        log.setTarget(entity.getClass().getSimpleName());
+        log.setAction(action);
+        log.setTargetId(targetId);
+        log.setDetails(resourceType.getMessage(action));
+
+        activityLogRepository.save(log);
+    }
+
+    private Integer getCurrentStaffId() {
+        try {
+            return JwtGuard.userPrincipal().getPersitentUser().getId();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to get user ID from JWT", e);
+        }
+    }
+
+    public String getEntityId(Identifiable entity) {
+            return String.valueOf( entity.getId() );
+    }
+
+    public List<ActivityLog> getAllActivityLogs() {
+        return activityLogRepository.findAll();
+    }
+
+    public List<ActivityLog> getActivityLogsByUserId(Integer userId) {
+        return activityLogRepository.findByStaffId(userId);
     }
 }
+
+

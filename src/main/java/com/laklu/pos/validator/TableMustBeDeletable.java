@@ -1,12 +1,12 @@
 package com.laklu.pos.validator;
 
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Table;
 import com.laklu.pos.enums.StatusTable;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public class TableMustBeDeletable extends BaseRule {
-    private final Tables tables;
+    private final Table table;
 
     @Override
     public String getValidateField() {
@@ -15,7 +15,7 @@ public class TableMustBeDeletable extends BaseRule {
 
     @Override
     public boolean isValid() {
-        return !(tables.getStatus() == StatusTable.RESERVED || tables.getStatus() == StatusTable.OCCUPIED);
+        return !(table.getStatus() == StatusTable.RESERVED || table.getStatus() == StatusTable.OCCUPIED);
     }
 
     @Override

@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import com.laklu.pos.enums.TrackedResourceType.Action;
 
 @Data
 @Entity
-@Table(name = "activity_logs")
+@jakarta.persistence.Table(name = "activity_logs")
 public class ActivityLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -16,8 +17,9 @@ public class ActivityLog {
     @Column(name = "staff_id")
     private Integer staffId;
 
-    @Column(name = "action", nullable = false)
-    private String action;
+    @Column(name = "action", nullable = false, length = 50) // Update length as needed
+    @Enumerated(EnumType.STRING)
+    private Action action;
 
     @Column(name = "target")
     private String target;
@@ -36,4 +38,5 @@ public class ActivityLog {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
 }

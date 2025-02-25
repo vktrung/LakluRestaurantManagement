@@ -3,7 +3,7 @@ package com.laklu.pos.services;
 import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
 import com.laklu.pos.entities.Reservation;
 import com.laklu.pos.entities.ReservationTable;
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Table;
 import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.dataObjects.request.ReservationRequest;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
@@ -39,7 +39,7 @@ public class ReservationService {
     public Reservation createReservation(ReservationRequest request) {
         Reservation reservation = reservationMapper.toEntity(request);
 
-        List<Tables> tables = tableRepository.findAllById(request.getTableIds());
+        List<Table> tables = tableRepository.findAllById(request.getTableIds());
 
         RuleValidator.validate(new TableMustAvailable(tables, reservationTableRepository, reservation.getCheckIn().toLocalDate()));
 
@@ -60,17 +60,17 @@ public class ReservationService {
 
             List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
 
-            List<Tables> tablesToRelease = oldTables.stream()
-                    .map(ReservationTable::getTables)
+            List<Table> tableToRelease = oldTables.stream()
+                    .map(ReservationTable::getTable)
                     .collect(Collectors.toList());
 
-            tablesToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
+            tableToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
 
-            tableRepository.saveAll(tablesToRelease);
+            tableRepository.saveAll(tableToRelease);
 
             reservationTableRepository.deleteAll(oldTables);
 
-            List<Tables> newTables = tableRepository.findAllById(request.getTableIds());
+            List<Table> newTables = tableRepository.findAllById(request.getTableIds());
 
             RuleValidator.validate(new TableMustAvailable(newTables, reservationTableRepository, reservation.getCheckIn().toLocalDate()));
 
@@ -93,11 +93,11 @@ public class ReservationService {
         return this.findReservationById(id).orElseThrow(NotFoundException::new);
     }
 
-    private void createReservationTables(Reservation reservation, List<Tables> tables, LocalDateTime createdAt) {
+    private void createReservationTables(Reservation reservation, List<Table> tables, LocalDateTime createdAt) {
         List<ReservationTable> reservationTables = tables.stream()
                 .map(table -> ReservationTable.builder()
                         .reservation(reservation)
-                        .tables(table)
+                        .table(table)
                         .createdAt(createdAt)
                         .build())
                 .collect(Collectors.toList());

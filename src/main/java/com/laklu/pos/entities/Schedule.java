@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import com.laklu.pos.enums.ShiftType;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -10,7 +11,8 @@ import java.time.LocalTime;
 
 @Data
 @Entity
-public class Schedule {
+@EntityListeners(ActivityLogListener.class)
+public class Schedule implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +43,11 @@ public class Schedule {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // Thời gian cập nhật lịch
+
+    @Override
+    public Long getId() {
+        return id;
+    }
 
     @PrePersist
     protected void onCreate() {

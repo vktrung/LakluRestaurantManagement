@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import com.laklu.pos.enums.SalaryType;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -11,7 +12,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Entity
-public class SalaryRate {
+@EntityListeners(ActivityLogListener.class)
+public class SalaryRate implements Identifiable<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,6 +38,11 @@ public class SalaryRate {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
 
     @PrePersist
     public void prePersist() {

@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,7 +9,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Attachment {
+@EntityListeners(ActivityLogListener.class)
+public class Attachment implements Identifiable<Long> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,5 +36,10 @@ public class Attachment {
 
     @Column(name = "path", nullable = false)
     private String path;
+
+    @Override
+    public Long getId() { // Trả về String thay vì Integer
+        return id;
+    }
 }
 
