@@ -41,8 +41,6 @@ public class CategoryService {
         RuleValidator.validate(valueExistIn);
 
         Category category = categoryMapper.toEntity(categoryRequest);
-        category.setCreatedAt(new java.util.Date());
-        category.setUpdatedAt(new java.util.Date());
         category.setIsDeleted(false);
 
         return categoryRepository.save(category);
@@ -60,7 +58,6 @@ public class CategoryService {
 
         category.setName(categoryRequest.getName());
         category.setDescription(categoryRequest.getDescription());
-        category.setUpdatedAt(new java.util.Date());
 
         return category;
     }
@@ -85,7 +82,6 @@ public class CategoryService {
             }
         });
 
-        category.setUpdatedAt(new Date());
         return categoryRepository.save(category);
     }
 }
