@@ -71,11 +71,17 @@ public class PaymentController {
             SepayWebhookRequest payload = objectMapper.readValue(json, SepayWebhookRequest.class);
             log.info("Đã parse payload: {}", payload);
 
-            // Lấy paymentCode từ webhook
-            String paymentCode = payload.getCode();
-            if (paymentCode == null || paymentCode.trim().isEmpty()) {
-                log.error("Payment code bị thiếu!");
-                return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, "Mã thanh toán bị thiếu");
+            // Kiểm tra description
+            String description = payload.getDescription();
+            if (description == null || description.trim().isEmpty()) {
+                log.error("Description bị thiếu!");
+                return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, "Dữ liệu mô tả (description) bị thiếu");
+            }
+
+            Integer paymentId = extractPaymentIdFromDescription(payload.getDescription());
+            if (paymentId == null) {
+                log.error("Không tìm thấy paymentId từ description: {}", description);
+                return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, "Không tìm thấy paymentId trong description");
             }
 
             BigDecimal amount = payload.getTransferAmount();
@@ -84,11 +90,11 @@ public class PaymentController {
                 return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, "Số tiền không hợp lệ");
             }
 
-            log.info("Xử lý thanh toán cho paymentCode: {}, amount: {}", paymentCode, amount);
-            paymentService.processPaymentWebhook("SUCCESS", paymentCode, amount);
+            log.info("Xử lý thanh toán cho paymentId: {}, amount: {}", paymentId, amount);
+            paymentService.processPaymentWebhook("SUCCESS", paymentId, amount);
 
             return ApiResponseEntity.success(Map.of(
-                    "paymentCode", paymentCode,
+                    "paymentId", paymentId,
                     "status", "PAID",
                     "amount", amount
             ), "Cập nhật trạng thái thanh toán thành công");

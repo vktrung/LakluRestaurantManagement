@@ -1,12 +1,12 @@
 package com.laklu.pos.auth.policies;
 
 import com.laklu.pos.auth.PermissionAlias;
-import com.laklu.pos.entities.Payments;
+import com.laklu.pos.entities.Payment;
 import com.laklu.pos.valueObjects.UserPrincipal;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PaymentPolicy implements Policy<Payments>{
+public class PaymentPolicy implements Policy<Payment>{
 
     @Override
     public boolean canCreate(UserPrincipal userPrincipal) {
@@ -14,7 +14,7 @@ public class PaymentPolicy implements Policy<Payments>{
     }
 
     @Override
-    public boolean canEdit(UserPrincipal userPrincipal, Payments payments) {
+    public boolean canEdit(UserPrincipal userPrincipal, Payment payment) {
         return false;
     }
 
@@ -24,12 +24,12 @@ public class PaymentPolicy implements Policy<Payments>{
     }
 
     @Override
-    public boolean canDelete(UserPrincipal userPrincipal, Payments payments) {
+    public boolean canDelete(UserPrincipal userPrincipal, Payment payment) {
         return userPrincipal.hasPermission(PermissionAlias.DELETE_PAYMENT);
     }
 
     @Override
-    public boolean canView(UserPrincipal userPrincipal, Payments payments) {
+    public boolean canView(UserPrincipal userPrincipal, Payment payment) {
         return userPrincipal.hasPermission(PermissionAlias.VIEW_PAYMENT);
     }
 }

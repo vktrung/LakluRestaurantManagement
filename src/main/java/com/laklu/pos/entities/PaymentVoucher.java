@@ -16,7 +16,7 @@ public class PaymentVoucher {
 
     @ManyToOne
     @JoinColumn(name = "payments_id", referencedColumnName = "id")
-    private Payments payments;
+    private Payment payment;
 
 
 }

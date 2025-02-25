@@ -2,6 +2,7 @@ package com.laklu.pos.services;
 
 import com.laklu.pos.enums.PaymentMethod;
 import com.laklu.pos.enums.PaymentStatus;
+import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.*;
 import com.laklu.pos.entities.*;
 import jakarta.transaction.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -20,37 +22,45 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
     private static final String SEPAY_QR_URL = "https://qr.sepay.vn/img";
+    private static final String PREFIX = "LL";
+    private static final Random RANDOM = new Random();
     private static final BigDecimal FIXED_AMOUNT = BigDecimal.valueOf(10000);
 
-    public Payments getPaymentById(int paymentId) {
-        return paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    public static String generatePaymentCode(){
+        int number = RANDOM.nextInt(999999);
+        return PREFIX + String.format("%06d", number);
     }
 
-    public List<Payments> getAll() {
+    public Payment getPaymentById(int paymentId) {
+        return paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new NotFoundException());
+    }
+
+    public List<Payment> getAll() {
         return paymentRepository.findAll();
     }
 
-    public Payments createPayment(int orderId) {
+    public Payment createPayment(int orderId) {
         Orders order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new NotFoundException());
 
-        Payments payment = new Payments();
+        Payment payment = new Payment();
         payment.setOrders(order);
         payment.setAmountPaid(FIXED_AMOUNT);
         payment.setPaymentMethod(PaymentMethod.TRANSFER);
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
         payment.setUpdatedAt(LocalDateTime.now());
+        payment.setCode(generatePaymentCode());
 
         return paymentRepository.save(payment);
     }
 
     public String generateQrCode(int paymentId) {
-        Payments payment = getPaymentById(paymentId);
+        Payment payment = getPaymentById(paymentId);
         String bank = "MBBank";
         String account = "0587775888";
-        String description = "Thanh toan don hang " + payment.getId();
+        String description = payment.getCode();
         return SEPAY_QR_URL + "?bank=" + bank
                 + "&acc=" + account
                 + "&amount=" + FIXED_AMOUNT
@@ -59,9 +69,9 @@ public class PaymentService {
     }
 
     @Transactional
-    public void processPaymentWebhook(String paymentStatus, int paymentId, BigDecimal amount) {
-        Payments payment = paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    public void processPaymentWebhook(String paymentStatus, String paymentCode, BigDecimal amount) {
+        Payment payment = paymentRepository.findByCode(paymentCode)
+                .orElseThrow(() -> new NotFoundException());
 
         if (amount.compareTo(payment.getAmountPaid()) != 0) {
             log.error("Số tiền nhận được ({}) không khớp với yêu cầu ({})!", amount, payment.getAmountPaid());
@@ -79,7 +89,7 @@ public class PaymentService {
 
         payment.setUpdatedAt(LocalDateTime.now());
         paymentRepository.save(payment);
-        log.info("PaymentId {} đã cập nhật thành {}", paymentId, payment.getPaymentStatus());
+        log.info("PaymentId {} đã cập nhật thành {}", paymentCode, payment.getPaymentStatus());
     }
 
     private void updateOrderStatus(Orders orders) {
@@ -88,7 +98,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public void deletePayment(Payments payment) {
+    public void deletePayment(Payment payment) {
         paymentRepository.delete(payment);
     }
 }

@@ -43,7 +43,7 @@ public class SecurityConfig {
         whiteListRoutes.add("/v3/api-docs/**");
         whiteListRoutes.add("/swagger-resources/**");
         whiteListRoutes.add("/webjars/**");
-        whiteListRoutes.add("/api/v1/payments/**");
+        whiteListRoutes.add("/api/v1/payments/webhook/sepay");
 
 
         if(!alreadySetup) {
