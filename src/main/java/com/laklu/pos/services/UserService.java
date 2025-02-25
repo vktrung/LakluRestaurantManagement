@@ -1,6 +1,7 @@
 package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.NewUser;
+import com.laklu.pos.dataObjects.response.UserInfo;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.entities.User;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
@@ -67,5 +68,15 @@ public class UserService {
 
     public void deleteUser(User user) {
         userRepository.delete(user);
+    }
+
+    public UserInfo getUserInfoById(Integer userId) {
+        User user = this.findOrFail(userId);
+        UserInfo userInfo = new UserInfo();
+        userInfo.setId(user.getId());
+        userInfo.setUsername(user.getUsername());
+        userInfo.setEmail(user.getEmail());
+        // Thiết lập các trường khác nếu cần
+        return userInfo;
     }
 }

@@ -1,6 +1,7 @@
 package com.laklu.pos.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.laklu.pos.controllers.ActivityLogListener;
 import com.laklu.pos.enums.StatusTable;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +15,9 @@ import java.util.Set;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class Tables {
+@EntityListeners(ActivityLogListener.class)
+@jakarta.persistence.Table(name = "tables")
+public class Table implements Identifiable<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,9 +39,14 @@ public class Tables {
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "tables", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     Set<ReservationTable> reservationTables;
+
+    @Override
+    public Integer getId() { // Trả về String thay vì Integer
+        return id;
+    }
 
     @PrePersist
     protected void onCreate() {

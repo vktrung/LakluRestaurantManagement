@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +12,8 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Role {
+@EntityListeners(ActivityLogListener.class)
+public class Role implements Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -32,4 +34,9 @@ public class Role {
 
     @ManyToMany(mappedBy = "roles")
     private Set<User> users;
+
+    @Override
+    public Integer getId() { // Trả về String thay vì Integer
+        return id;
+    }
 }

@@ -2,6 +2,7 @@ package com.laklu.pos.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.laklu.pos.auth.JwtGuard;
+import com.laklu.pos.controllers.ActivityLogListener;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,7 +16,8 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Reservation {
+@EntityListeners(ActivityLogListener.class)
+public class Reservation implements Identifiable<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +51,11 @@ public class Reservation {
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     Set<ReservationTable> reservationTables;
+
+    @Override
+    public Integer getId() { // Trả về String thay vì Integer
+        return id;
+    }
 
     @PrePersist
     protected void onCreate() {

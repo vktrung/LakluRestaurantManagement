@@ -6,7 +6,7 @@ import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewTable;
 import com.laklu.pos.dataObjects.request.TableUpdateRequest;
 import com.laklu.pos.dataObjects.response.TableResponse;
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Table;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.TableService;
 import com.laklu.pos.uiltis.Ultis;
@@ -14,12 +14,12 @@ import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.TableMustBeUnique;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityListeners;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +30,7 @@ import java.util.function.Function;
 @RestController
 @RequestMapping("api/v1/tables")
 @RequiredArgsConstructor
+@EntityListeners(ActivityLogListener.class)
 @Tag(name = "Table Controller", description = "Quản lý thông tin người dùng")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class TableController {
@@ -41,7 +42,7 @@ public class TableController {
     public ApiResponseEntity index() throws Exception {
         Ultis.throwUnless(tablePolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
 
-        List<Tables> tables = tableService.getAllTables();
+        List<Table> tables = tableService.getAllTables();
 
         return ApiResponseEntity.success(tables);
     }
@@ -51,36 +52,36 @@ public class TableController {
     public ApiResponseEntity store(@Valid @RequestBody NewTable request) throws Exception{
         Ultis.throwUnless(tablePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
-        Function<String, Optional<Tables>> tabeResolver = tableService::findByTableName;
+        Function<String, Optional<Table>> tabeResolver = tableService::findByTableName;
 
         RuleValidator.validate(new TableMustBeUnique(tabeResolver, request.getTableNumber()));
 
-        Tables tables = tableService.createTable(request);
+        Table table = tableService.createTable(request);
 
-        return ApiResponseEntity.success(new TableResponse(tables));
+        return ApiResponseEntity.success(new TableResponse(table));
     }
 
     @Operation(summary = "Hiện thị bàn theo id bàn", description = "API này dùng để lấy thông tin bàn theo id bàn")
     @GetMapping("/{id}")
     public ApiResponseEntity show(@PathVariable Integer id) throws Exception {
-        Tables tables = tableService.findOrFail(id);
+        Table table = tableService.findOrFail(id);
 
-        Ultis.throwUnless(tablePolicy.canView(JwtGuard.userPrincipal(), tables), new ForbiddenException());
+        Ultis.throwUnless(tablePolicy.canView(JwtGuard.userPrincipal(), table), new ForbiddenException());
 
 
-        return ApiResponseEntity.success(new TableResponse(tables));
+        return ApiResponseEntity.success(new TableResponse(table));
     }
 
     @Operation(summary = "Cập nhật bàn", description = "API này dùng để cập nhật thông tin bàn")
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable Integer id, @Valid @RequestBody TableUpdateRequest request) throws Exception {
-        Tables tables = tableService.findOrFail(id);
+        Table table = tableService.findOrFail(id);
 
-        Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), tables), new ForbiddenException());
+        Ultis.throwUnless(tablePolicy.canEdit(JwtGuard.userPrincipal(), table), new ForbiddenException());
 
-        Tables updatedTables = tableService.updateTable(id, request);
+        Table updatedTable = tableService.updateTable(id, request);
 
-        return ApiResponseEntity.success(new TableResponse(updatedTables));
+        return ApiResponseEntity.success(new TableResponse(updatedTable));
     }
 
     @Operation(summary = "Xoá bàn", description = "API này dùng để xoá bàn theo id")

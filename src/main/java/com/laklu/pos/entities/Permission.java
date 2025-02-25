@@ -1,5 +1,6 @@
 package com.laklu.pos.entities;
 
+import com.laklu.pos.controllers.ActivityLogListener;
 import com.laklu.pos.enums.PermissionGroup;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +14,8 @@ import java.util.Set;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Permission implements GrantedAuthority {
+//@EntityListeners(ActivityLogListener.class)
+public class Permission implements GrantedAuthority, Identifiable<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -34,6 +36,10 @@ public class Permission implements GrantedAuthority {
     @ManyToMany(mappedBy = "permissions")
     private Set<Role> roles;
 
+    @Override
+    public Integer getId() {
+        return id;
+    }
 
     @Override
     public String getAuthority() {

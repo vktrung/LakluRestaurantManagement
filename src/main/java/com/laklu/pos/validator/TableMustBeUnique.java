@@ -1,6 +1,6 @@
 package com.laklu.pos.validator;
 
-import com.laklu.pos.entities.Tables;
+import com.laklu.pos.entities.Table;
 import lombok.AllArgsConstructor;
 
 
@@ -9,7 +9,7 @@ import java.util.function.Function;
 
 @AllArgsConstructor
 public class TableMustBeUnique extends BaseRule {
-    private final Function<String, Optional<Tables>> tableResolver;
+    private final Function<String, Optional<Table>> tableResolver;
     private final String tableName;
 
     @Override
