@@ -4,10 +4,14 @@ import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.Policy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewUser;
+import com.laklu.pos.dataObjects.request.UpdateUser;
 import com.laklu.pos.dataObjects.response.AuthUserResponse;
 import com.laklu.pos.dataObjects.response.UserResponse;
 import com.laklu.pos.entities.User;
+import com.laklu.pos.entities.SalaryRate;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
+import com.laklu.pos.mapper.UserMapper;
+import com.laklu.pos.services.SalaryRateService;
 import com.laklu.pos.services.UserService;
 import com.laklu.pos.uiltis.Ultis;
 import com.laklu.pos.validator.RuleValidator;
@@ -32,6 +36,8 @@ public class UserController {
 
     private final Policy<User> userPolicy;
     private final UserService userService;
+    private final UserMapper userMapper;
+    private final SalaryRateService salaryRateService;
 
     @Operation(summary = "Lấy thông tin tất cả người dùng", description = "API này dùng để lấy thông tin tất cả nhân viên")
     @GetMapping("/")
@@ -45,7 +51,8 @@ public class UserController {
                         user.getEmail(),
                         user.getPhone(),
                         user.getAvatar(),
-                        user.getRoles()
+                        user.getRoles(),
+                        user.getSalaryRate().getLevelName()
                 ))
                 .toList();
 
@@ -76,6 +83,24 @@ public class UserController {
         Ultis.throwUnless(userPolicy.canView(JwtGuard.userPrincipal(), user), new ForbiddenException());
 
         return ApiResponseEntity.success(new AuthUserResponse(new UserPrincipal(user)));
+    }
+
+    @Operation(summary = "Cập nhật thông tin người dùng", description = "API này dùng để cập nhật thông tin người dùng")
+    @PutMapping("/{id}")
+    public ApiResponseEntity update(@PathVariable int id, @RequestBody @Validated UpdateUser updateUser) throws Exception {
+        var existingUser = userService.findOrFail(id);
+
+        Ultis.throwUnless(userPolicy.canEdit(JwtGuard.userPrincipal(), existingUser), new ForbiddenException());
+
+        userMapper.updateUserFromDto(updateUser, existingUser);
+
+        if (updateUser.getSalaryRateId() != null) {
+            SalaryRate salaryRate = salaryRateService.findOrFail(updateUser.getSalaryRateId());
+            existingUser.setSalaryRate(salaryRate);
+        }
+
+        User updatedUser = userService.update(existingUser);
+        return ApiResponseEntity.success(new AuthUserResponse(new UserPrincipal(updatedUser)));
     }
 
     @Operation(summary = "Xoá người dùng theo id", description = "API này dùng để xoá người dùng")

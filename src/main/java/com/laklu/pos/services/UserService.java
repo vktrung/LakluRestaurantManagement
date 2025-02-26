@@ -59,8 +59,8 @@ public class UserService {
     }
 
     // TODO: handle partial update
-    public User edit(NewUser user) {
-        return null;
+    public User update(User user) {
+        return userRepository.save(user);
     }
 
     public Optional<User> findUserById(Integer id) {

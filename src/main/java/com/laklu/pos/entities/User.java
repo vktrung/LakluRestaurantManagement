@@ -58,6 +58,10 @@ public class User implements Identifiable<Integer> {
     @Setter
     private Set<Role> roles;
 
+    public SalaryRate getSalaryRate() {
+        return salaryRate != null ? salaryRate : null;
+    }
+
     public void setPassword(String password, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(password);
     }
