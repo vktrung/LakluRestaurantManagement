@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -31,9 +32,12 @@ public class PaymentService {
         return PREFIX + String.format("%06d", number);
     }
 
-    public Payment getPaymentById(int paymentId) {
-        return paymentRepository.findById(paymentId)
-                .orElseThrow(() -> new NotFoundException());
+    public Payment findOrFail(Integer id) {
+        return this.getPaymentById(id).orElseThrow(NotFoundException::new);
+    }
+
+    public Optional<Payment> getPaymentById(int paymentId) {
+        return paymentRepository.findById(paymentId);
     }
 
     public List<Payment> getAll() {
@@ -57,7 +61,7 @@ public class PaymentService {
     }
 
     public String generateQrCode(int paymentId) {
-        Payment payment = getPaymentById(paymentId);
+        Payment payment = findOrFail(paymentId);
         String bank = "MBBank";
         String account = "0587775888";
         String description = payment.getCode();

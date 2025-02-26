@@ -1,11 +1,20 @@
 package com.laklu.pos.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.PaymentPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.SepayWebhookRequest;
+import com.laklu.pos.dataObjects.response.PaymentResponse;
 import com.laklu.pos.entities.Payment;
+import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
+import com.laklu.pos.repositories.OrderRepository;
+import com.laklu.pos.repositories.PaymentRepository;
 import com.laklu.pos.services.PaymentService;
+import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.OrderMustExist;
+import com.laklu.pos.validator.PaymentMustExist;
+import com.laklu.pos.validator.RuleValidator;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -14,9 +23,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,25 +34,42 @@ import java.util.stream.Collectors;
 public class PaymentController {
     private final PaymentPolicy paymentPolicy;
     private final PaymentService paymentService;
+    private final PaymentRepository paymentRepository;
+    private final OrderRepository orderRepository;
 
     @GetMapping("/{id}")
     public ApiResponseEntity getPaymentById(@PathVariable int id) throws Exception {
-        Payment payment = paymentService.getPaymentById(id);
-//        Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
+        RuleValidator.validate(new PaymentMustExist(id, paymentRepository));
+        Payment payment = paymentService.findOrFail(id);
+        PaymentResponse response = new PaymentResponse(
+                payment.getOrders().getId(),
+                payment.getPaymentMethod(),
+                payment.getPaymentStatus(),
+                payment.getPaymentDate()
+        );
+        Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
 
-        return ApiResponseEntity.success(payment, "Lấy hóa đơn thành công");
+        return ApiResponseEntity.success(response, "Lấy hóa đơn thành công");
     }
 
     @GetMapping("/getAll")
     public ApiResponseEntity getAll() throws Exception {
-//        Ultis.throwUnless(paymentPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
-
-        return ApiResponseEntity.success(paymentService.getAll(), "Lấy danh sách hóa đơn thanh toán");
+        Ultis.throwUnless(paymentPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
+        List<PaymentResponse> responses = paymentService.getAll().stream()
+                .map(payment -> new PaymentResponse(
+                        payment.getOrders().getId(),
+                        payment.getPaymentMethod(),
+                        payment.getPaymentStatus(),
+                        payment.getPaymentDate()
+                )).collect(Collectors.toList());
+        return ApiResponseEntity.success(responses, "Lấy danh sách hóa đơn thanh toán");
     }
 
     @PostMapping("/create")
     public ApiResponseEntity createPayment(@Valid @RequestParam int orderId) throws Exception {
-//        Ultis.throwUnless(paymentPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+        RuleValidator.validate(new OrderMustExist(orderId, orderRepository));
+
+        Ultis.throwUnless(paymentPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
         Payment payment = paymentService.createPayment(orderId);
         return ApiResponseEntity.success(payment, "Tạo hóa đơn thanh toán thành công");
@@ -52,8 +77,9 @@ public class PaymentController {
 
     @GetMapping("/{id}/qr")
     public ApiResponseEntity generateQrCode(@PathVariable int id) throws Exception {
-        Payment payment = paymentService.getPaymentById(id);
-//        Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
+        RuleValidator.validate(new PaymentMustExist(id, paymentRepository));
+        Payment payment = paymentService.findOrFail(id);
+        Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
 
         String qrCodeUrl = paymentService.generateQrCode(id);
         return ApiResponseEntity.success(Map.of("qrCodeUrl", qrCodeUrl), "Tạo mã QR thành công");
@@ -100,8 +126,8 @@ public class PaymentController {
 
     @DeleteMapping("/{id}")
     public ApiResponseEntity deletePayment(@PathVariable int id) throws Exception {
-        Payment payment = paymentService.getPaymentById(id);
-//        Ultis.throwUnless(paymentPolicy.canDelete(JwtGuard.userPrincipal(), payment), new ForbiddenException());
+        Payment payment = paymentService.findOrFail(id);
+        Ultis.throwUnless(paymentPolicy.canDelete(JwtGuard.userPrincipal(), payment), new ForbiddenException());
 
         paymentService.deletePayment(payment);
         return ApiResponseEntity.success("Xóa hóa đơn thanh toán thành công");
