@@ -1,0 +1,24 @@
+package com.laklu.pos.dataObjects.response;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class OrderResponse
+{
+    private Long id;
+    private Long reservationId;
+    private Long staffId;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private List<OrderItemResponse> orderItems;
+    private Boolean isDeleted;
+    private String status;
+}

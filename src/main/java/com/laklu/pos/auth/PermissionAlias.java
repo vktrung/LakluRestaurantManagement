@@ -62,7 +62,19 @@ public enum PermissionAlias {
     CREATE_CATEGORY("categories:create","Thêm danh mục", PermissionGroup.CATEGORY),
     UPDATE_CATEGORY("categories:update","Sửa danh mục", PermissionGroup.CATEGORY),
     LIST_CATEGORY("categories:list","Danh sách danh mục", PermissionGroup.CATEGORY),
-    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY);
+    DELETE_CATEGORY("categories:delete","Xóa danh mục", PermissionGroup.CATEGORY),
+
+    CREATE_ORDER("orders:create", "Tạo đơn hàng", PermissionGroup.ORDER),
+    VIEW_ORDER("orders:view", "Xem chi tiết đơn hàng", PermissionGroup.ORDER),
+    UPDATE_ORDER("orders:update", "Cập nhật đơn hàng", PermissionGroup.ORDER),
+    LIST_ORDER("orders:list", "Danh sách đơn hàng", PermissionGroup.ORDER),
+    DELETE_ORDER("orders:delete", "Xóa đơn hàng", PermissionGroup.ORDER),
+
+    CREATE_ORDER_ITEM("order_items:create", "Thêm món vào đơn hàng", PermissionGroup.ORDER_ITEM),
+    VIEW_ORDER_ITEM("order_items:view", "Xem chi tiết món trong đơn hàng", PermissionGroup.ORDER_ITEM),
+    UPDATE_ORDER_ITEM("order_items:update", "Cập nhật món trong đơn hàng", PermissionGroup.ORDER_ITEM),
+    LIST_ORDER_ITEM("order_items:list", "Danh sách món trong đơn hàng", PermissionGroup.ORDER_ITEM),
+    DELETE_ORDER_ITEM("order_items:delete", "Xóa món trong đơn hàng", PermissionGroup.ORDER_ITEM);
 
     PermissionAlias(String alias, String name, PermissionGroup group) {
         this.alias = alias;

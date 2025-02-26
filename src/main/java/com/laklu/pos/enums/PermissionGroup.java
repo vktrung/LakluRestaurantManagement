@@ -14,7 +14,9 @@ public enum PermissionGroup {
     MENU("Menu Permissions", "MENU", "Quyền liên quan đến menu"),
     DISH("Dish Permissions", "DISH", "Quyền liên quan đến món ăn"),
     MENU_ITEM("Menu Item Permissions", "MENU_ITEM", "Quyền liên quan đến mục menu"),
-    SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương");
+    SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương"),
+    ORDER("Order Permissions", "ORDER", "Quyền liên quan đến đơn món ăn"),
+    ORDER_ITEM("Order Item Permissions", "ORDER_ITEM", "Quyền liên quan đến món ăn");
 
     private final String label;
     private final String alias;
