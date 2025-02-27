@@ -1,0 +1,39 @@
+services:
+  database:
+    image: mysql:8
+    container_name: my_mysql_db
+    restart: always
+    environment:
+      MYSQL_DATABASE: pos  # Tự động tạo database khi container khởi động
+      MYSQL_ROOT_PASSWORD: rootpassword  # Chỉ dùng biến này để đặt mật khẩu cho root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: my_spring_app
+    depends_on:
+      database:
+        condition: service_healthy  # Đảm bảo MySQL đã sẵn sàng trước khi Spring Boot chạy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/pos?useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: rootpassword
+    ports:
+      - "8080:8080"
+
+networks:
+  default:
+    driver: bridge
+
+volumes:
+  mysql_data:  # Volume để lưu trữ dữ liệu MySQL, tránh mất dữ liệu khi restart

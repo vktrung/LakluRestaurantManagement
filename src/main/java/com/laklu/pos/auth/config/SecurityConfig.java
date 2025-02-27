@@ -75,7 +75,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configurationSource = new CorsConfiguration();
-        configurationSource.addAllowedOrigin(webCorsOrigin);
+        configurationSource.addAllowedOriginPattern("*");
         configurationSource.addAllowedHeader("*");
         configurationSource.addAllowedMethod(HttpMethod.GET);
         configurationSource.addAllowedMethod(HttpMethod.POST);

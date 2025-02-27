@@ -64,23 +64,8 @@ public class MenuController {
         return ApiResponseEntity.success(MenuResponse.fromEntity(menu));
     }
 
-    @Operation(summary = "Cập nhật thông tin thực đơn", description = "API này dùng để cập nhật thông tin thực đơn theo ID")
-    @PutMapping("/{id}")
-    public ApiResponseEntity updateMenu(@PathVariable Integer id, @RequestBody NewMenu menuDetails) throws Exception {
-        Menu existingMenu = menuService.findOrFail(id);
-        Ultis.throwUnless(menuPolicy.canEdit(JwtGuard.userPrincipal(), existingMenu), new ForbiddenException());
-
-        existingMenu.setName(menuDetails.getName());
-        existingMenu.setStartAt(menuDetails.getStartAt());
-        existingMenu.setEndAt(menuDetails.getEndAt());
-        existingMenu.setStatus(menuDetails.getStatus());
-
-        Menu updatedMenu = menuService.updateMenu(existingMenu);
-        return ApiResponseEntity.success(MenuResponse.fromEntity(updatedMenu));
-    }
-
     @Operation(summary = "Cập nhật một phần thông tin thực đơn", description = "API này dùng để cập nhật một phần thông tin thực đơn theo ID")
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ApiResponseEntity partialUpdateMenu(@PathVariable Integer id, @RequestBody NewMenu partialUpdateMenu) throws Exception {
         Menu existingMenu = menuService.findOrFail(id);
         Ultis.throwUnless(menuPolicy.canEdit(JwtGuard.userPrincipal(), existingMenu), new ForbiddenException());
