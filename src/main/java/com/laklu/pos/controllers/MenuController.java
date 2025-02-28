@@ -79,7 +79,7 @@ public class MenuController {
         Menu existingMenu = menuService.findOrFail(id);
         Ultis.throwUnless(menuPolicy.canEdit(JwtGuard.userPrincipal(), existingMenu), new ForbiddenException());
 
-        validateMenuName(partialUpdateMenu.getName());
+        //validateMenuName(partialUpdateMenu.getName());
 
         menuMapper.updateMenuFromDto(partialUpdateMenu, existingMenu);
 

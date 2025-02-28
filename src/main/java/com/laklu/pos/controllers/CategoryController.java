@@ -72,7 +72,7 @@ public class CategoryController {
         Category category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canEdit(JwtGuard.userPrincipal(), category), new ForbiddenException());
 
-        this.validateName(updates.get("name").toString());
+        //this.validateName(updates.get("name").toString());
 
         Category updatedCategory = categoryService.updateCategoryPartially(category, updates);
 

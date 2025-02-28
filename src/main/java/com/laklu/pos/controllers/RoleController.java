@@ -76,7 +76,7 @@ public class RoleController {
 
         rolePolicy.canEdit(JwtGuard.userPrincipal(), roleToUpdate);
 
-        this.validateName(updateRole.getName());
+        //this.validateName(updateRole.getName());
 
         Role updatedRole = roleService.updateRole(updateRole, roleToUpdate);
 

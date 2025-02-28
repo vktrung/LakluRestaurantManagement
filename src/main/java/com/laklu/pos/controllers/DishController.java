@@ -74,7 +74,7 @@ public class DishController {
 
         Ultis.throwUnless(dishPolicy.canEdit(JwtGuard.userPrincipal(), existingDish), new ForbiddenException());
 
-        this.validateName(partialUpdateDish.getName());
+        //this.validateName(partialUpdateDish.getName());
 
         dishMapper.updateDishFromDto(partialUpdateDish, existingDish);
 

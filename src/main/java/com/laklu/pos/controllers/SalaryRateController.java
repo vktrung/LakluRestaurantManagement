@@ -47,7 +47,7 @@ public class SalaryRateController {
     public ApiResponseEntity updateSalaryRate(@PathVariable Integer id, @RequestBody NewSalaryRate newSalaryRate) throws Exception{
         var salaryRate = salaryRateService.findOrFail(id);
         Ultis.throwUnless(salaryRatePolicy.canEdit(JwtGuard.userPrincipal(), salaryRate), new ForbiddenException());
-        this.validateName(newSalaryRate.getLevelName());
+        //this.validateName(newSalaryRate.getLevelName());
         SalaryRate updatedSalaryRate = salaryRateService.updateSalaryRate(id, newSalaryRate);
         return ApiResponseEntity.success(updatedSalaryRate);
     }
