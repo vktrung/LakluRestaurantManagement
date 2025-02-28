@@ -1,6 +1,7 @@
 package com.laklu.pos.mapper;
 
 import com.laklu.pos.dataObjects.request.ReservationRequest;
+import com.laklu.pos.dataObjects.request.UpdateReservationDTO;
 import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
 import com.laklu.pos.entities.Reservation;
 import org.mapstruct.*;
@@ -12,6 +13,6 @@ public interface ReservationMapper {
     Reservation toEntity(ReservationRequest request);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateReservation(UpdateReservationRequest request, @MappingTarget Reservation reservation);
+    void updateReservation(UpdateReservationDTO request, @MappingTarget Reservation reservation);
 
 }

@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class UnauthorizedException extends RestHttpException {
     public UnauthorizedException() {
-        super(ExceptionCode.BAD_REQUEST);
+        super(ExceptionCode.UNAUTHORIZED);
     }
 }

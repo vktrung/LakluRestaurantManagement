@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class NotFoundException extends RestHttpException {
     public NotFoundException() {
-        super(ExceptionCode.BAD_REQUEST);
+        super(ExceptionCode.NOT_FOUND);
     }
 }

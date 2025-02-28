@@ -1,10 +1,9 @@
 package com.laklu.pos.services;
 
-import com.laklu.pos.dataObjects.request.UpdateReservationRequest;
+import com.laklu.pos.dataObjects.request.UpdateReservationDTO;
 import com.laklu.pos.entities.Reservation;
 import com.laklu.pos.entities.ReservationTable;
 import com.laklu.pos.entities.Table;
-import com.laklu.pos.enums.StatusTable;
 import com.laklu.pos.dataObjects.request.ReservationRequest;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.mapper.ReservationMapper;
@@ -12,13 +11,15 @@ import com.laklu.pos.repositories.ReservationRepository;
 import com.laklu.pos.repositories.ReservationTableRepository;
 import com.laklu.pos.repositories.TableRepository;
 import com.laklu.pos.validator.RuleValidator;
-import com.laklu.pos.validator.TableMustAvailable;
+import com.laklu.pos.validator.TablesMustBeAvailable;
 import jakarta.transaction.Transactional;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class ReservationService {
+public class ReservationService  implements ReservationByDateResolver {
 
     ReservationRepository reservationRepository;
     TableRepository tableRepository;
@@ -41,48 +42,37 @@ public class ReservationService {
 
         List<Table> tables = tableRepository.findAllById(request.getTableIds());
 
-        RuleValidator.validate(new TableMustAvailable(tables, reservationTableRepository, reservation.getCheckIn().toLocalDate()));
+        RuleValidator.validate(new TablesMustBeAvailable(tables, null, this));
 
         reservation = reservationRepository.save(reservation);
 
-        createReservationTables(reservation, tables, reservation.getReservationTime());
+        this.createReservationTables(reservation, tables, reservation.getReservationTime());
 
         return reservation;
     }
 
 
-    public Reservation updateReservation(Integer reservationId, UpdateReservationRequest request) {
-        Reservation reservation = findOrFail(reservationId);
-
-        reservationMapper.updateReservation(request, reservation);
-
-        if (request.getTableIds() != null && !request.getTableIds().isEmpty()) {
-
-            List<ReservationTable> oldTables = reservationTableRepository.findByReservation(reservation);
-
-            List<Table> tableToRelease = oldTables.stream()
-                    .map(ReservationTable::getTable)
-                    .collect(Collectors.toList());
-
-            tableToRelease.forEach(table -> table.setStatus(StatusTable.AVAILABLE));
-
-            tableRepository.saveAll(tableToRelease);
-
-            reservationTableRepository.deleteAll(oldTables);
-
-            List<Table> newTables = tableRepository.findAllById(request.getTableIds());
-
-            RuleValidator.validate(new TableMustAvailable(newTables, reservationTableRepository, reservation.getCheckIn().toLocalDate()));
-
-            newTables.forEach(table -> table.setStatus(StatusTable.OCCUPIED));
-
-            tableRepository.saveAll(newTables);
-
-            createReservationTables(reservation, newTables, LocalDateTime.now());
-        }
+    public Reservation updateReservationInfo(Reservation reservation, UpdateReservationDTO dto) {
+        reservationMapper.updateReservation(dto, reservation);
 
         return reservationRepository.save(reservation);
     }
+
+    public Reservation addTablesToReservation(Reservation reservation, List<Integer> tableIds) {
+        List<Table> tables = tableRepository.findAllExceptInReservation(tableIds, reservation);
+
+        RuleValidator.validate(new TablesMustBeAvailable(tables, null, this));
+
+        this.createReservationTables(reservation, tables, LocalDateTime.now());
+
+        return reservation;
+    }
+
+    public void deleteTablesReservation(Reservation reservation, List<Integer> tableIds) {
+        List<ReservationTable> reservationTables = reservationTableRepository.findByReservationAndTables(reservation, tableIds);
+        this.reservationTableRepository.deleteAll(reservationTables);
+    }
+
 
 
     public Optional<Reservation> findReservationById(Integer id) {
@@ -102,6 +92,12 @@ public class ReservationService {
                         .build())
                 .collect(Collectors.toList());
 
-        reservationTableRepository.saveAll(reservationTables);
+        this.reservationTableRepository.saveAll(reservationTables);
+    }
+
+    @Override
+    public List<ReservationTable> resolveReservationsDate(LocalDate date, List<Table> tables) {
+
+        return this.reservationTableRepository.findReservationsDate(date, tables);
     }
 }

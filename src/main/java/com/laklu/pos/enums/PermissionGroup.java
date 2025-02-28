@@ -4,17 +4,17 @@ import lombok.Getter;
 
 @Getter
 public enum PermissionGroup {
-    USER("User Permissions", "USER", "Quyền liên quan đến người dùng"),
-    ROLE("Role Permissions", "ROLE", "Quyền liên quan đến vai trò"),
-    ATTACHMENT("Attachment Permissions", "ATTACHMENT", "Quyền liên quan đến tệp đính kèm"),
-    SCHEDULE("Schedule Permissions", "SCHEDULE", "Quyền liên quan đến lịch làm việc"),
-    CATEGORY("Category Permissions", "CATEGORY", "Quyền liên quan đến danh mục"),
-    TABLE("Table Permissions", "TABLE", "Quyền liên quan đến bàn"),
-    RESERVATION("Reservation Permissions", "RESERVATION", "Quyền liên quan đến đặt chỗ"),
-    MENU("Menu Permissions", "MENU", "Quyền liên quan đến menu"),
-    DISH("Dish Permissions", "DISH", "Quyền liên quan đến món ăn"),
-    MENU_ITEM("Menu Item Permissions", "MENU_ITEM", "Quyền liên quan đến mục menu"),
-    SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương");
+    USER("Quyền Người Dùng", "USER", "Quyền liên quan đến người dùng"),
+    ROLE("Quyền Vai Trò", "ROLE", "Quyền liên quan đến vai trò"),
+    ATTACHMENT("Quyền Tệp Đính Kèm", "ATTACHMENT", "Quyền liên quan đến tệp đính kèm"),
+    SCHEDULE("Quyền Lịch Làm Việc", "SCHEDULE", "Quyền liên quan đến lịch làm việc"),
+    CATEGORY("Quyền Danh Mục", "CATEGORY", "Quyền liên quan đến danh mục"),
+    TABLE("Quyền Bàn", "TABLE", "Quyền liên quan đến bàn"),
+    RESERVATION("Quyền Đặt Chỗ", "RESERVATION", "Quyền liên quan đến đặt chỗ"),
+    MENU("Quyền Menu", "MENU", "Quyền liên quan đến menu"),
+    DISH("Quyền Món Ăn", "DISH", "Quyền liên quan đến món ăn"),
+    MENU_ITEM("Quyền Mục Menu", "MENU_ITEM", "Quyền liên quan đến mục menu"),
+    SALARY_RATE("Quyền Mức Lương", "SALARY_RATE", "Quyền liên quan đến mức lương");
 
     private final String label;
     private final String alias;

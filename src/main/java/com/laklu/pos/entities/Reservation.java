@@ -48,6 +48,9 @@ public class Reservation implements Identifiable<Integer> {
     @Column(name = "user_id")
     Integer userId;
 
+    @Column(name = "number_of_people", nullable = false)
+    Integer numberOfPeople;
+
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     Set<ReservationTable> reservationTables;

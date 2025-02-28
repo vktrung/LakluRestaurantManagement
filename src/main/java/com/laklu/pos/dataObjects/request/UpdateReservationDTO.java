@@ -1,22 +1,18 @@
 package com.laklu.pos.dataObjects.request;
 
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import jakarta.validation.constraints.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReservationRequest {
+public class UpdateReservationDTO {
     @NotNull(message = "Không được để trống")
     @Size(min = 3, max = 100, message = "Tên phải nằm trong khoảng từ 3 đến 100 kí tự")
     String customerName;
@@ -30,12 +26,9 @@ public class ReservationRequest {
     @FutureOrPresent(message = "Thời gian đặt chỗ phải là hiện tại hoặc tương lai")
     LocalDateTime reservationTime;
 
-    @NotNull(message = "Không được bỏ trống")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @FutureOrPresent(message = "Thời gian check-in phải là hiện tại hoặc tương lai")
-    LocalDateTime checkIn;
-
     @NotEmpty(message = "Hãy chọn bàn")
     List<Integer> tableIds;
+
+    @Min(value = 1, message = "Số lượng người phải lớn hơn 0")
     private Integer numberOfPeople;
 }

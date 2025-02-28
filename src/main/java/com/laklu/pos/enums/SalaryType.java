@@ -1,9 +1,9 @@
 package com.laklu.pos.enums;
 
 public enum SalaryType {
-    MONTHLY("Monthly"),
-    HOURLY("Hourly"),
-    SHIFTLY("Shiftly");
+    MONTHLY("Lương Tháng"),
+    HOURLY("Lương Giờ"),
+    SHIFTLY("Lương Theo Ca");
 
     private final String label;
 
