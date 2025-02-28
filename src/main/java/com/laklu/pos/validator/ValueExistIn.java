@@ -1,6 +1,5 @@
 package com.laklu.pos.validator;
 
-import java.util.List;
 import java.util.function.Function;
 
 public class ValueExistIn<T> extends BaseRule {
@@ -22,5 +21,10 @@ public class ValueExistIn<T> extends BaseRule {
     @Override
     public boolean isValid() {
         return fieldValueResolver.apply(fieldValue);
+    }
+
+    @Override
+    public String getMessage() {
+        return field + " đã tồn tại";
     }
 }

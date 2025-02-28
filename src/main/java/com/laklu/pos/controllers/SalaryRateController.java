@@ -8,10 +8,10 @@ import com.laklu.pos.entities.SalaryRate;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.SalaryRateService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +37,7 @@ public class SalaryRateController {
     @PostMapping("/")
     public ApiResponseEntity store(@RequestBody NewSalaryRate newSalaryRate) throws Exception {
         Ultis.throwUnless(salaryRatePolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+        this.validateName(newSalaryRate.getLevelName());
         SalaryRate salaryRate = salaryRateService.createSalaryRate(newSalaryRate);
         return ApiResponseEntity.success(salaryRate);
     }
@@ -46,6 +47,7 @@ public class SalaryRateController {
     public ApiResponseEntity updateSalaryRate(@PathVariable Integer id, @RequestBody NewSalaryRate newSalaryRate) throws Exception{
         var salaryRate = salaryRateService.findOrFail(id);
         Ultis.throwUnless(salaryRatePolicy.canEdit(JwtGuard.userPrincipal(), salaryRate), new ForbiddenException());
+        this.validateName(newSalaryRate.getLevelName());
         SalaryRate updatedSalaryRate = salaryRateService.updateSalaryRate(id, newSalaryRate);
         return ApiResponseEntity.success(updatedSalaryRate);
     }
@@ -56,6 +58,17 @@ public class SalaryRateController {
         SalaryRate salaryRate = salaryRateService.findOrFail(id);
         salaryRateService.deleteSalaryRate(salaryRate);
         return ApiResponseEntity.success("Salary rate deleted successfully");
+    }
+
+    private void validateName(String name) {
+        ValueExistIn<String> rule = new ValueExistIn<>(
+                "Vai trò",
+                name,
+                (n) -> salaryRateService.findSalaryRateByName(n).isEmpty()
+        );
+        if (!rule.isValid()) {
+            throw new IllegalArgumentException(rule.getMessage());
+        }
     }
 
 }

@@ -3,6 +3,7 @@ package com.laklu.pos.services;
 import com.laklu.pos.entities.Menu;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.MenuRepository;
+import com.laklu.pos.validator.MenuNameMustBeUnique;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -40,5 +41,9 @@ public class MenuService {
 
     public void deleteMenu(Menu menu) {
         menuRepository.delete(menu);
+    }
+
+    public Optional<Menu> findByName(String name) {
+        return menuRepository.findByName(name);
     }
 }

@@ -10,6 +10,7 @@ import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.MenuItemMapper;
 import com.laklu.pos.services.MenuItemService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -66,17 +67,6 @@ public class MenuItemController {
         Ultis.throwUnless(menuItemPolicy.canEdit(JwtGuard.userPrincipal(), existingMenuItem), new ForbiddenException());
 
         menuItemMapper.updateMenuItemFromDto(menuItemDetails, existingMenuItem);
-        MenuItem updatedMenuItem = menuItemService.updateMenuItem(existingMenuItem);
-        return ApiResponseEntity.success(MenuItemResponse.fromEntity(updatedMenuItem));
-    }
-
-    @Operation(summary = "Cập nhật một phần thông tin mục trong thực đơn", description = "API này dùng để cập nhật một phần thông tin mục trong thực đơn theo ID")
-    @PatchMapping("/{id}")
-    public ApiResponseEntity partialUpdateMenuItem(@PathVariable Integer id, @RequestBody NewMenuItem partialUpdateMenuItem) throws Exception {
-        MenuItem existingMenuItem = menuItemService.findOrFail(id);
-        Ultis.throwUnless(menuItemPolicy.canEdit(JwtGuard.userPrincipal(), existingMenuItem), new ForbiddenException());
-
-        menuItemMapper.updateMenuItemFromDto(partialUpdateMenuItem, existingMenuItem);
         MenuItem updatedMenuItem = menuItemService.updateMenuItem(existingMenuItem);
         return ApiResponseEntity.success(MenuItemResponse.fromEntity(updatedMenuItem));
     }

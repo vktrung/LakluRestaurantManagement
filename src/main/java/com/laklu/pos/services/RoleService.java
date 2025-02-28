@@ -60,4 +60,8 @@ public class RoleService {
     public void deleteRole(Role role) {
         roleRepository.delete(role);
     }
+
+    public Optional<Role> findByName(String name) {
+        return roleRepository.findByName(name);
+    }
 }

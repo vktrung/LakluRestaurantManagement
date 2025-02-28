@@ -9,7 +9,6 @@ import com.laklu.pos.dataObjects.response.TokenResponse;
 import com.laklu.pos.valueObjects.UserCredentials;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

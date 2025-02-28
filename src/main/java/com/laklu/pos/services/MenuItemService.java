@@ -62,4 +62,8 @@ public class MenuItemService {
         return findById(id)
                 .orElseThrow(NotFoundException::new);
     }
+
+    public Optional<MenuItem> findByName(String name) {
+        return menuItemRepository.findbyName(name);
+    }
 }

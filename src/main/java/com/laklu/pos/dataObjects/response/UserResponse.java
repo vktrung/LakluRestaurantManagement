@@ -1,7 +1,6 @@
 package com.laklu.pos.dataObjects.response;
 
 import com.laklu.pos.entities.Role;
-import com.laklu.pos.entities.SalaryRate;
 import lombok.Getter;
 import lombok.Setter;
 

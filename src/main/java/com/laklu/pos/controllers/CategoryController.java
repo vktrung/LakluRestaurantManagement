@@ -7,8 +7,11 @@ import com.laklu.pos.dataObjects.request.CategoryRequest;
 import com.laklu.pos.entities.Category;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.CategoryMapper;
+import com.laklu.pos.repositories.CategoryRepository;
 import com.laklu.pos.services.CategoryService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.MenuNameMustBeUnique;
+import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -48,7 +51,6 @@ public class CategoryController {
         var category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canView(JwtGuard.userPrincipal(), category), new ForbiddenException());
 
-
         return ApiResponseEntity.success(categoryMapper.toResponse(category), "Lấy thông tin category thành công");
     }
 
@@ -56,6 +58,8 @@ public class CategoryController {
     @PostMapping("/")
     public ApiResponseEntity createCategory( @Valid @RequestBody CategoryRequest categoryRequest)throws Exception{
         Ultis.throwUnless(categoryPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+
+        this.validateName(categoryRequest.getName());
 
         Category category = categoryService.createCategory(categoryRequest);
 
@@ -67,6 +71,8 @@ public class CategoryController {
     public ApiResponseEntity updateCategory(@PathVariable Long id, @RequestBody Map<String, Object> updates) throws Exception{
         Category category = categoryService.findOrFail(id);
         Ultis.throwUnless(categoryPolicy.canEdit(JwtGuard.userPrincipal(), category), new ForbiddenException());
+
+        this.validateName(updates.get("name").toString());
 
         Category updatedCategory = categoryService.updateCategoryPartially(category, updates);
 
@@ -82,5 +88,16 @@ public class CategoryController {
         categoryService.deleteCategory(category);
 
         return ApiResponseEntity.success(null, "Xóa category thành công");
+    }
+
+    private void validateName(String name) {
+        ValueExistIn<String> rule = new ValueExistIn<>(
+                "Danh mục",
+                name,
+                (n) -> categoryService.findByName(n).isEmpty()
+        );
+        if (!rule.isValid()) {
+            throw new IllegalArgumentException(rule.getMessage());
+        }
     }
 }

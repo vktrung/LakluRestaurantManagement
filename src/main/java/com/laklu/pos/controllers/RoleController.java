@@ -9,6 +9,7 @@ import com.laklu.pos.dataObjects.response.RoleResource;
 import com.laklu.pos.dataObjects.response.RoleResponse;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.services.RoleService;
+import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -16,7 +17,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -32,6 +32,8 @@ public class RoleController {
     @PostMapping("/")
     public ApiResponseEntity store(@RequestBody @Validated NewRole role) {
         rolePolicy.canCreate(JwtGuard.userPrincipal());
+
+        this.validateName(role.getName());
 
         Role persitedRole = roleService.storeRole(role);
 
@@ -74,6 +76,8 @@ public class RoleController {
 
         rolePolicy.canEdit(JwtGuard.userPrincipal(), roleToUpdate);
 
+        this.validateName(updateRole.getName());
+
         Role updatedRole = roleService.updateRole(updateRole, roleToUpdate);
 
         return ApiResponseEntity.success(new RoleResource(updatedRole));
@@ -89,5 +93,16 @@ public class RoleController {
         roleService.deleteRole(role);
 
         return ApiResponseEntity.success("Xóa role thành công");
+    }
+
+    private void validateName(String name) {
+        ValueExistIn<String> rule = new ValueExistIn<>(
+                "Vai trò",
+                name,
+                (n) -> roleService.findByName(n).isEmpty()
+        );
+        if (!rule.isValid()) {
+            throw new IllegalArgumentException(rule.getMessage());
+        }
     }
 }

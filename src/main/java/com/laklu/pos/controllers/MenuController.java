@@ -8,14 +8,20 @@ import com.laklu.pos.dataObjects.response.MenuResponse;
 import com.laklu.pos.entities.Menu;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.MenuMapper;
+import com.laklu.pos.repositories.MenuRepository;
 import com.laklu.pos.services.MenuService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.MenuNameMustBeUnique;
+import com.laklu.pos.validator.RuleValidator;
+import com.laklu.pos.validator.UsernameMustBeUnique;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -27,6 +33,7 @@ public class MenuController {
     private final MenuPolicy menuPolicy;
     private final MenuService menuService;
     private final MenuMapper menuMapper;
+    private final MenuRepository menuRepository;
 
     @Operation(summary = "Lấy thông tin tất cả thực đơn", description = "API này dùng để lấy danh sách tất cả thực đơn")
     @GetMapping("/")
@@ -45,11 +52,13 @@ public class MenuController {
     public ApiResponseEntity createMenu(@RequestBody NewMenu newMenu) throws Exception {
         Ultis.throwUnless(menuPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
+        validateMenuName(newMenu.getName());
+
         Menu menu = new Menu();
         menu.setName(newMenu.getName());
         menu.setStartAt(newMenu.getStartAt());
         menu.setEndAt(newMenu.getEndAt());
-        menu.setStatus(newMenu.getStatus());
+        menu.setStatus(Menu.MenuStatus.ENABLE);
 
         Menu createdMenu = menuService.createMenu(menu);
         return ApiResponseEntity.success(MenuResponse.fromEntity(createdMenu));
@@ -64,26 +73,13 @@ public class MenuController {
         return ApiResponseEntity.success(MenuResponse.fromEntity(menu));
     }
 
-    @Operation(summary = "Cập nhật thông tin thực đơn", description = "API này dùng để cập nhật thông tin thực đơn theo ID")
-    @PutMapping("/{id}")
-    public ApiResponseEntity updateMenu(@PathVariable Integer id, @RequestBody NewMenu menuDetails) throws Exception {
-        Menu existingMenu = menuService.findOrFail(id);
-        Ultis.throwUnless(menuPolicy.canEdit(JwtGuard.userPrincipal(), existingMenu), new ForbiddenException());
-
-        existingMenu.setName(menuDetails.getName());
-        existingMenu.setStartAt(menuDetails.getStartAt());
-        existingMenu.setEndAt(menuDetails.getEndAt());
-        existingMenu.setStatus(menuDetails.getStatus());
-
-        Menu updatedMenu = menuService.updateMenu(existingMenu);
-        return ApiResponseEntity.success(MenuResponse.fromEntity(updatedMenu));
-    }
-
     @Operation(summary = "Cập nhật một phần thông tin thực đơn", description = "API này dùng để cập nhật một phần thông tin thực đơn theo ID")
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ApiResponseEntity partialUpdateMenu(@PathVariable Integer id, @RequestBody NewMenu partialUpdateMenu) throws Exception {
         Menu existingMenu = menuService.findOrFail(id);
         Ultis.throwUnless(menuPolicy.canEdit(JwtGuard.userPrincipal(), existingMenu), new ForbiddenException());
+
+        validateMenuName(partialUpdateMenu.getName());
 
         menuMapper.updateMenuFromDto(partialUpdateMenu, existingMenu);
 
@@ -99,5 +95,12 @@ public class MenuController {
 
         menuService.deleteMenu(menu);
         return ApiResponseEntity.success("Xóa thực đơn thành công");
+    }
+
+    private void validateMenuName(String name) {
+        MenuNameMustBeUnique rule = new MenuNameMustBeUnique(menuRepository::findByName, name);
+        if (!rule.isValid()) {
+            throw new IllegalArgumentException(rule.getMessage());
+        }
     }
 }

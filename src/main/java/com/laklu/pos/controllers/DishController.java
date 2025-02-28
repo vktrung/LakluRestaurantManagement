@@ -2,7 +2,6 @@ package com.laklu.pos.controllers;
 
 import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.DishPolicy;
-import com.laklu.pos.auth.policies.Policy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewDish;
 import com.laklu.pos.dataObjects.response.DishResponse;
@@ -11,6 +10,7 @@ import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.DishMapper;
 import com.laklu.pos.services.DishService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -46,6 +46,8 @@ public class DishController {
     public ApiResponseEntity createDish(@RequestBody NewDish newDish) throws Exception {
         Ultis.throwUnless(dishPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
+        this.validateName(newDish.getName());
+
         Dish dish = new Dish();
         dish.setName(newDish.getName());
         dish.setDescription(newDish.getDescription());
@@ -72,9 +74,12 @@ public class DishController {
 
         Ultis.throwUnless(dishPolicy.canEdit(JwtGuard.userPrincipal(), existingDish), new ForbiddenException());
 
+        this.validateName(partialUpdateDish.getName());
+
         dishMapper.updateDishFromDto(partialUpdateDish, existingDish);
 
         Dish updatedDish = dishService.updateDish(existingDish);
+
         return ApiResponseEntity.success(DishResponse.fromEntity(updatedDish));
     }
 
@@ -88,5 +93,16 @@ public class DishController {
         dishService.deleteDish(dish);
 
         return ApiResponseEntity.success("Xóa món ăn thành công");
+    }
+
+    private void validateName(String name) {
+        ValueExistIn<String> rule = new ValueExistIn<>(
+                "Món ăn",
+                name,
+                (n) -> dishService.findByName(n).isEmpty()
+        );
+        if (!rule.isValid()) {
+            throw new IllegalArgumentException(rule.getMessage());
+        }
     }
 }

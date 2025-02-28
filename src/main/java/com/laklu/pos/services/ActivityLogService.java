@@ -7,7 +7,6 @@ import com.laklu.pos.repositories.ActivityLogRepository;
 import com.laklu.pos.entities.Identifiable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.laklu.pos.enums.TrackedResourceType.Action;
 
 import java.util.List;
 

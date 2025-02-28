@@ -1,7 +1,6 @@
 package com.laklu.pos.dataObjects.response;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

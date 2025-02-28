@@ -2,6 +2,7 @@ package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.CategoryRequest;
 import com.laklu.pos.entities.Category;
+import com.laklu.pos.entities.Menu;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.mapper.CategoryMapper;
 import com.laklu.pos.repositories.CategoryRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -83,5 +85,9 @@ public class CategoryService {
         });
 
         return categoryRepository.save(category);
+    }
+
+    public Optional<Category> findByName(String name) {
+        return categoryRepository.findByName(name);
     }
 }

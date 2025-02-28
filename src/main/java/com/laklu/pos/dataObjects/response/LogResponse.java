@@ -1,6 +1,5 @@
 package com.laklu.pos.dataObjects.response;
 
-import com.laklu.pos.entities.User;
 import lombok.Data;
 
 import java.time.LocalDateTime;

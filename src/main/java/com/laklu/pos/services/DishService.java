@@ -1,5 +1,6 @@
 package com.laklu.pos.services;
 
+import com.laklu.pos.entities.Category;
 import com.laklu.pos.entities.Dish;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.DishRepository;
@@ -38,5 +39,9 @@ public class DishService {
 
     public void deleteDish(Dish dish) {
         dishRepository.delete(dish);
+    }
+
+    public Optional<Dish> findByName(String name) {
+        return dishRepository.findByName(name);
     }
 }

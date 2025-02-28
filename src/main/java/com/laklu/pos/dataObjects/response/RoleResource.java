@@ -1,6 +1,5 @@
 package com.laklu.pos.dataObjects.response;
 
-import com.laklu.pos.entities.Permission;
 import com.laklu.pos.entities.Role;
 import lombok.Data;
 

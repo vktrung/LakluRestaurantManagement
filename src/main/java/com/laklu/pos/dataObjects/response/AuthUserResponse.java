@@ -2,7 +2,6 @@ package com.laklu.pos.dataObjects.response;
 
 import com.laklu.pos.valueObjects.UserPrincipal;
 import lombok.Data;
-import org.springframework.lang.Nullable;
 
 import java.util.List;
 

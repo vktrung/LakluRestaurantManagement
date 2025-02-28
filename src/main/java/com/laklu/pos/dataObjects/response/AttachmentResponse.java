@@ -1,6 +1,5 @@
 package com.laklu.pos.dataObjects.response;
 
-import com.laklu.pos.entities.Attachment;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

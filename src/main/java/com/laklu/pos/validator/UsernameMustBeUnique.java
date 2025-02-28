@@ -1,7 +1,6 @@
 package com.laklu.pos.validator;
 
 import com.laklu.pos.entities.User;
-import com.laklu.pos.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 
 import java.util.Optional;

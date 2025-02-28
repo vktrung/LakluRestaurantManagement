@@ -46,4 +46,8 @@ public class SalaryRateService {
     public SalaryRate findOrFail(Integer id) {
         return this.findSalaryRateById(id).orElseThrow(NotFoundException::new);
     }
+
+    public Optional<SalaryRate> findSalaryRateByName(String name) {
+        return salaryRateRepository.findByLevelName(name);
+    }
 }
