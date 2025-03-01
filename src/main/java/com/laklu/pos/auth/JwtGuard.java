@@ -68,7 +68,7 @@ public class JwtGuard {
     }
 
     public static UserPrincipal userPrincipal() {
-        if(!isAuthenticated() && getAuthentication().getPrincipal() instanceof UserPrincipal) {
+        if(!isAuthenticated() || !(getAuthentication().getPrincipal() instanceof UserPrincipal)) {
             throw new UnauthorizedException();
         }
         return (UserPrincipal) getAuthentication().getPrincipal();
