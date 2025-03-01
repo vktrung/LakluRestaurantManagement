@@ -1,24 +1,18 @@
 package com.laklu.pos.services;
 
+import com.laklu.pos.dataObjects.response.PersistAttachmentResponse;
 import com.laklu.pos.entities.Attachment;
 import com.laklu.pos.entities.InteractWithAttachments;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.AttachmentRepository;
 import com.laklu.pos.validator.FileMustBeValid;
 import com.laklu.pos.validator.RuleValidator;
-import com.laklu.pos.validator.TableMustAvailable;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,7 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -70,16 +63,16 @@ public class AttachmentService {
 
     public String getImageUrl(String name) {
         Attachment attachment = attachmentRepository.findByRandomName(name).orElseThrow(NotFoundException::new);
-        return appBaseurl + "/" + attachmentEndpoint + "/" + attachment.getPath();
+        return appBaseurl + "/" + attachmentEndpoint + "/" + attachment.getRandomName();
     }
 
     public String getImageUrl(Long id) {
         Attachment attachment = attachmentRepository.findById(id).orElseThrow(NotFoundException::new);
-        return appBaseurl + "/" + attachmentEndpoint + "/" + attachment.getPath();
+        return appBaseurl + "/" + attachmentEndpoint + "/" + attachment.getRandomName();
     }
 
     public String getImageUrl(@NotNull Attachment attachment) {
-        return appBaseurl + "/" + attachmentEndpoint + "/" + attachment.getPath();
+        return appBaseurl + "/" + attachmentEndpoint + "/" + attachment.getRandomName();
     }
 
     public <T> void saveAttachment(InteractWithAttachments<T> interactWithAttachments, Long attachmentId, boolean isSync) {
@@ -115,6 +108,14 @@ public class AttachmentService {
 
     public List<Attachment> findAll(List<Long> ids) {
         return attachmentRepository.findAllById(ids);
+    }
+
+    public PersistAttachmentResponse toPersistAttachmentResponse(Attachment attachment) {
+        return new PersistAttachmentResponse(
+                attachment.getId(),
+                this.getImageUrl(attachment),
+                attachment.getRandomName()
+        );
     }
 
 }

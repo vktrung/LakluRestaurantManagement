@@ -5,6 +5,7 @@ import com.laklu.pos.auth.policies.DishPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewDish;
 import com.laklu.pos.dataObjects.response.DishResponse;
+import com.laklu.pos.dataObjects.response.PersistAttachmentResponse;
 import com.laklu.pos.entities.Dish;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.DishMapper;
@@ -13,13 +14,11 @@ import com.laklu.pos.services.DishService;
 import com.laklu.pos.uiltis.Ultis;
 import com.laklu.pos.validator.RuleValidator;
 import com.laklu.pos.validator.ValidationRule;
-import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import javax.xml.validation.Validator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,7 +39,7 @@ public class DishController {
         Ultis.throwUnless(dishPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
 
         List<DishResponse> dishes = dishService.getAll().stream()
-                .map(DishResponse::fromEntity)
+                .map(this::toDishResponse)
                 .collect(Collectors.toList());
 
         return ApiResponseEntity.success(dishes);
@@ -56,11 +55,12 @@ public class DishController {
         Dish dish = new Dish();
         dish.setName(newDish.getName());
         dish.setDescription(newDish.getDescription());
+        dish.setPrice(newDish.getPrice());
 
         Dish createdDish = dishService.createDish(dish);
         this.attachmentService.saveAttachment(dish, newDish.getImageIds(), true);
 
-        return ApiResponseEntity.success(createdDish);
+        return ApiResponseEntity.success(this.toDishResponse(createdDish));
     }
 
     @Operation(summary = "Lấy thông tin món ăn theo ID", description = "API này dùng để lấy thông tin món ăn theo ID")
@@ -70,7 +70,7 @@ public class DishController {
 
         Ultis.throwUnless(dishPolicy.canView(JwtGuard.userPrincipal(), dish), new ForbiddenException());
 
-        return ApiResponseEntity.success(DishResponse.fromEntity(dish));
+        return ApiResponseEntity.success(this.toDishResponse(dish));
     }
 
     @Operation(summary = "Cập nhật thông tin món ăn", description = "API này dùng để cập nhật thông tin món ăn theo ID")
@@ -87,7 +87,7 @@ public class DishController {
         Dish updatedDish = dishService.updateDish(existingDish);
         this.attachmentService.saveAttachment(updatedDish, partialUpdateDish.getImageIds(), true);
 
-        return ApiResponseEntity.success(DishResponse.fromEntity(updatedDish));
+        return ApiResponseEntity.success(this.toDishResponse(updatedDish));
     }
 
     @Operation(summary = "Xóa món ăn theo ID", description = "API này dùng để xóa món ăn")
@@ -109,5 +109,12 @@ public class DishController {
                 "Tên món ăn đã tồn tại"
         );
         RuleValidator.validate(nameMustBeUnique);
+    }
+
+    private DishResponse toDishResponse(Dish dish) {
+        DishResponse response = DishResponse.fromEntity(dish);
+        List<PersistAttachmentResponse> images = dish.getAttachments().stream().map(attachmentService::toPersistAttachmentResponse).toList();
+        response.setImages(images);
+        return response;
     }
 }

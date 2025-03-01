@@ -10,14 +10,10 @@ import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.MenuItemMapper;
 import com.laklu.pos.services.MenuItemService;
 import com.laklu.pos.uiltis.Ultis;
-import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/menu-items")
@@ -28,18 +24,6 @@ public class MenuItemController {
     private final Policy<MenuItem> menuItemPolicy; // Giả định có Policy cho MenuItem
     private final MenuItemService menuItemService;
     private final MenuItemMapper menuItemMapper;
-
-    @Operation(summary = "Lấy thông tin tất cả mục trong thực đơn", description = "API này dùng để lấy danh sách tất cả mục trong thực đơn")
-    @GetMapping("/")
-    public ApiResponseEntity getAllMenuItems() throws Exception {
-        Ultis.throwUnless(menuItemPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
-
-        List<MenuItemResponse> menuItems = menuItemService.getAll().stream()
-                .map(MenuItemResponse::fromEntity)
-                .collect(Collectors.toList());
-
-        return ApiResponseEntity.success(menuItems);
-    }
 
     @Operation(summary = "Tạo một mục trong thực đơn mới", description = "API này dùng để tạo một mục trong thực đơn mới")
     @PostMapping("/")
