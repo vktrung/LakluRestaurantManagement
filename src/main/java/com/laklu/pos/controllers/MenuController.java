@@ -82,7 +82,7 @@ public class MenuController {
             return menuItemResponse;
         }).collect(Collectors.toList()));
 
-        return ApiResponseEntity.success(MenuResponse.fromEntity(menu));
+        return ApiResponseEntity.success(menuResponse);
     }
 
     @Operation(summary = "Cập nhật một phần thông tin thực đơn", description = "API này dùng để cập nhật một phần thông tin thực đơn theo ID")
