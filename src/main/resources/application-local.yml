@@ -32,4 +32,4 @@ springdoc:
 app:
   base:
     url: http://localhost:8080
-    attachment-endpoint: /api/v1/attachments
+    attachment-endpoint: api/v1/attachments
