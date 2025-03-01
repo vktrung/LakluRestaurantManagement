@@ -28,27 +28,40 @@ jobs:
       - name: Build with Maven
         run: mvn clean install -DskipTests
 
-      # 4. Set up SSH key for connecting to the server
+      # 4. Upload JAR as artifact
+      - name: Upload JAR artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: app-jar
+          path: target/pos-0.0.1-SNAPSHOT.jar
+
+      # 5. Set up SSH key for connecting to the server
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.DEPLOY_KEY }}
 
-      # 5. Deploy to the server
+      # 6. Deploy to server
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             PROJECT_DIR="/home/user/my-app"
             mkdir -p $PROJECT_DIR
+          
+            # Dừng tiến trình cũ nếu đang chạy (tùy vào cách bạn quản lý tiến trình)
+            pkill -f 'java -jar' || true
+          
+            # Xóa file JAR cũ nếu có
+            rm -f $PROJECT_DIR/pos-0.0.1-SNAPSHOT.jar
+          EOF
+
+          # Copy JAR từ runner sang server
+          scp target/pos-0.0.1-SNAPSHOT.jar ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:/home/user/my-app/
+
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
+            PROJECT_DIR="/home/user/my-app"
             cd $PROJECT_DIR
-
-            # Kiểm tra nếu thư mục chưa có mã nguồn
-            if [ ! -d ".git" ]; then
-              git clone git@github.com:vktrung/LakluRestaurantManagement.git  .
-            fi
-
-            git pull origin master
-
-            # Chạy ứng dụng từ file JAR trong thư mục target
-            java -jar target/pos-0.0.1-SNAPSHOT.jar
+          
+            # Chạy ứng dụng trong background với nohup
+            nohup java -jar pos-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
           EOF
