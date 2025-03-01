@@ -47,6 +47,7 @@ public class SecurityConfig {
         whiteListRoutes.add("/v3/api-docs/**");
         whiteListRoutes.add("/swagger-resources/**");
         whiteListRoutes.add("/webjars/**");
+        whiteListRoutes.add("/api/v1/attachments/**");
 
         if(!alreadySetup) {
             whiteListRoutes.add("/api/v1/setup/permissions");
