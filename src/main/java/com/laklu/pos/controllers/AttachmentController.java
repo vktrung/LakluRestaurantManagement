@@ -53,7 +53,7 @@ public class AttachmentController {
     }
 
     @Operation(summary = "Xem file", description = "API này dùng để xem file")
-    @GetMapping(value = "/{filename}", produces = MediaType.ALL_VALUE)
+    @GetMapping(value = "/{filename}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_GIF_VALUE})
     public Resource show(@PathVariable String filename) throws Exception{
         Path filePath = Paths.get(AttachmentService.UPLOAD_DIRECTORY).resolve(filename);
         return new UrlResource(filePath.toUri());
