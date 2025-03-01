@@ -38,19 +38,17 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            # 6. Create the project directory if it doesn't exist
             PROJECT_DIR="/home/user/my-app"
             mkdir -p $PROJECT_DIR
-
-            # 7. Navigate to the project directory
             cd $PROJECT_DIR
 
-            # 8. Pull the latest code from GitHub
+            # Kiểm tra nếu thư mục chưa có mã nguồn
+            if [ ! -d ".git" ]; then
+              git clone git@github.com:vktrung/LakluRestaurantManagement.git  .
+            fi
+
             git pull origin master
-
-            # 9. Install dependencies
             mvn clean install
-
-            # 10. Run the application with the JAR file
             java -jar target/pos-0.0.1-SNAPSHOT.jar
           EOF
+      
