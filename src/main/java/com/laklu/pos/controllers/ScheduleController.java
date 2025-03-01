@@ -12,6 +12,7 @@ import com.laklu.pos.uiltis.Ultis;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -85,5 +86,23 @@ public class ScheduleController {
 
         return ApiResponseEntity.success("Xóa lịch làm việc thành công");
     }
+
+    // Tạo mã QR điểm danh
+    @Operation(summary = "Tạo mã qr check in code", description = "API này dùng để tạo mã QR điểm danh")
+    @PostMapping(produces = MediaType.IMAGE_PNG_VALUE, value = "/check-in-qr-code/{id}")
+    public byte[] generateQRCheckInCode(@PathVariable("id") long id) throws Exception {
+        var schedule = scheduleService.findOrFail(id);
+        Ultis.throwUnless(schedulePolicy.canCreateCheckInQrCode(JwtGuard.userPrincipal()), new ForbiddenException());
+        return scheduleService.generateCheckInCode(schedule);
+    }
+
+    @Operation(summary = "Tạo mã qr check out code", description = "API này dùng để tạo mã QR điểm danh check out")
+    @PostMapping(produces = MediaType.IMAGE_PNG_VALUE, value = "/check-out-qr-code/{id}")
+    public byte[] generateQRCheckOutCode(@PathVariable("id") long id) throws Exception {
+        var schedule = scheduleService.findOrFail(id);
+        Ultis.throwUnless(schedulePolicy.canCreateCheckOutQrCode(JwtGuard.userPrincipal()), new ForbiddenException());
+        return scheduleService.generateCheckOutCode(schedule);
+    }
+
 }
 

@@ -8,6 +8,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 
 @Data
 @Entity
@@ -43,6 +44,9 @@ public class Schedule implements Identifiable<Long> {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // Thời gian cập nhật lịch
+
+    @OneToMany(mappedBy = "schedule", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Attendance> attendances; // Danh sách điểm danh
 
     @Override
     public Long getId() {
