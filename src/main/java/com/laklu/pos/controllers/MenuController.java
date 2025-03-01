@@ -4,24 +4,24 @@ import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.MenuPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewMenu;
+import com.laklu.pos.dataObjects.response.DishResponse;
+import com.laklu.pos.dataObjects.response.MenuItemResponse;
 import com.laklu.pos.dataObjects.response.MenuResponse;
+import com.laklu.pos.entities.Dish;
 import com.laklu.pos.entities.Menu;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.MenuMapper;
 import com.laklu.pos.repositories.MenuRepository;
+import com.laklu.pos.services.AttachmentService;
 import com.laklu.pos.services.MenuService;
 import com.laklu.pos.uiltis.Ultis;
 import com.laklu.pos.validator.MenuNameMustBeUnique;
-import com.laklu.pos.validator.RuleValidator;
-import com.laklu.pos.validator.UsernameMustBeUnique;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @RestController
@@ -34,6 +34,7 @@ public class MenuController {
     private final MenuService menuService;
     private final MenuMapper menuMapper;
     private final MenuRepository menuRepository;
+    private final AttachmentService attachmentService;
 
     @Operation(summary = "Lấy thông tin tất cả thực đơn", description = "API này dùng để lấy danh sách tất cả thực đơn")
     @GetMapping("/")
@@ -69,6 +70,17 @@ public class MenuController {
     public ApiResponseEntity getMenuById(@PathVariable Integer id) throws Exception {
         Menu menu = menuService.findOrFail(id);
         Ultis.throwUnless(menuPolicy.canView(JwtGuard.userPrincipal(), menu), new ForbiddenException());
+
+        MenuResponse menuResponse = MenuResponse.fromEntity(menu);
+
+        menuResponse.setMenuItems(menu.getMenuItems().stream().map((menuItem)-> {
+            Dish dish = menuItem.getDish();
+            DishResponse dishResponse = DishResponse.fromEntity(dish);
+            dishResponse.setImages(dish.getAttachments().stream().map(attachmentService::toPersistAttachmentResponse).collect(Collectors.toList()));
+            MenuItemResponse menuItemResponse = MenuItemResponse.fromEntity(menuItem);
+            menuItemResponse.setDish(dishResponse);
+            return menuItemResponse;
+        }).collect(Collectors.toList()));
 
         return ApiResponseEntity.success(MenuResponse.fromEntity(menu));
     }

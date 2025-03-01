@@ -36,9 +36,6 @@ public class MenuItem implements Identifiable<Integer> {
     private BigDecimal price; // Sử dụng BigDecimal theo yêu cầu DECIMAL
 
     @Column(nullable = false)
-    private Integer discount; // Sử dụng Integer theo yêu cầu INT cho giảm giá
-
-    @Column(nullable = false)
     private String status; // Sử dụng String vì anh chưa đề cập Enum cho status trong menuItem
 
     @Column(name = "created_at", nullable = false, updatable = false)

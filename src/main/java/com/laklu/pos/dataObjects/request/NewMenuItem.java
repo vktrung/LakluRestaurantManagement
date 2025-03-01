@@ -10,6 +10,5 @@ public class NewMenuItem {
     private Integer menuId;
     private Long categoryId;
     private BigDecimal price;
-    private Integer discount;
     private String status;
 }

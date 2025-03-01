@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,9 @@ public class Dish implements Identifiable<Integer>, InteractWithAttachments<Inte
     private String name;
 
     private String description;
+
+    @Column(nullable = false)
+    private Double price;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

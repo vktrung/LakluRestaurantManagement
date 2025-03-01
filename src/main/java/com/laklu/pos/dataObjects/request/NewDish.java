@@ -14,4 +14,7 @@ public class NewDish {
 
     @NotNull
     private List<Long> imageIds;
+
+    @NotNull
+    private Double price;
 }
