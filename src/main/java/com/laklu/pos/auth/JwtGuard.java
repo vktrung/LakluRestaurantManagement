@@ -1,5 +1,6 @@
 package com.laklu.pos.auth;
 
+import com.laklu.pos.exceptions.httpExceptions.UnauthorizedException;
 import com.laklu.pos.valueObjects.UserCredentials;
 import com.laklu.pos.valueObjects.UserPrincipal;
 import io.jsonwebtoken.Claims;
@@ -67,6 +68,9 @@ public class JwtGuard {
     }
 
     public static UserPrincipal userPrincipal() {
+        if(!isAuthenticated()) {
+            throw new UnauthorizedException();
+        }
         return (UserPrincipal) getAuthentication().getPrincipal();
     }
 
