@@ -55,7 +55,6 @@ public class AttachmentController {
     @Operation(summary = "Xem file", description = "API này dùng để xem file")
     @GetMapping(value = "/{filename}", produces = MediaType.ALL_VALUE)
     public Resource show(@PathVariable String filename) throws Exception{
-        Ultis.throwUnless(attachmentPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
         Path filePath = Paths.get(AttachmentService.UPLOAD_DIRECTORY).resolve(filename);
         return new UrlResource(filePath.toUri());
     }
