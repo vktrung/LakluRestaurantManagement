@@ -14,6 +14,7 @@ public enum TrackedResourceType {
     SALARYRATE("Mức lương"),
     ROLE("Vai trò"),
     RESERVATIONTABLE("Bàn đặt"),
+    ATTACHMENT("Tệp đính kèm"),
     RESERVATION("Đặt bàn"),
     PAYMENT("Thanh toán");
 

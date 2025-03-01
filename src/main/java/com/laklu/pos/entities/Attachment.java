@@ -32,7 +32,7 @@ public class Attachment implements Identifiable<Long> {
     private String targetName; // nullable
 
     @Column(name = "target_id")
-    private Long targetId; // nullable
+    private String targetId; // nullable
 
     @Column(name = "path", nullable = false)
     private String path;

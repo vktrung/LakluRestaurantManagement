@@ -5,14 +5,16 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @jakarta.persistence.Table(name = "dish")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dish implements Identifiable<Integer> {
+public class Dish implements Identifiable<Integer>, InteractWithAttachments<Integer> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,6 +33,19 @@ public class Dish implements Identifiable<Integer> {
     @OneToMany(mappedBy = "dish", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<MenuItem> menuItems;
 
+    @ManyToMany
+    @JoinTable(
+            name = "dish_attachment",
+            joinColumns = @JoinColumn(name = "dish_id"),
+            inverseJoinColumns = @JoinColumn(name = "attachment_id")
+    )
+    private Set<Attachment> attachments;
+
+    @Override
+    public void addAttachment(Attachment... attachment) {
+        attachments.addAll(Arrays.asList(attachment));
+    }
+
     @Override
     public Integer getId() {
         return id;
@@ -46,4 +61,5 @@ public class Dish implements Identifiable<Integer> {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
 }

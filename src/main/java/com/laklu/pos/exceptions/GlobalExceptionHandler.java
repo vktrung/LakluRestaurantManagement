@@ -73,4 +73,9 @@ public class GlobalExceptionHandler {
         return ApiResponseEntity.exception(HttpStatus.BAD_REQUEST, e.getMessage());
     }
 
+    @ExceptionHandler(RuleNotValidException.class)
+    protected ApiResponseEntity handleRuleException(RuleNotValidException ex) {
+        return ApiResponseEntity.exception(HttpStatus.UNPROCESSABLE_ENTITY, ex.getErrors());
+    }
+
 }

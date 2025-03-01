@@ -38,7 +38,7 @@ public class ReservationController {
     ReservationPolicy reservationPolicy;
     TableRepository tableRepository;
 
-    @Operation(summary = "Tạo đặt bàn", description = "API này dùng để tạo đặt bàn mới")
+    @Operation(summary = "Tạo đặt bàn", description = "API này dùng để thu thập thông tin khách hàng")
     @PostMapping("/")
     public ApiResponseEntity store(@Valid @RequestBody ReservationRequest request) throws Exception {
         Ultis.throwUnless(reservationPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
@@ -68,15 +68,7 @@ public class ReservationController {
 
         Ultis.throwUnless(reservationPolicy.canEdit(JwtGuard.userPrincipal(), reservation), new ForbiddenException());
 
-        //List<Table> currentTable = reservation.getReservationTables().stream().map(ReservationTable::getTable).toList();
-//        List<Table> currentTable = new ArrayList<>();
-//        for (ReservationTable resTable : reservation.getReservationTables()) {
-//            currentTable.add(resTable.getTable());
-//        }
-
         List<Table> tables = tableRepository.findAllById(request.getTableIds());
-
-        //Integer totalSeat = tables.stream().map(Table::getCapacity).reduce(0, Integer::sum) + currentTable.stream().map(Table::getCapacity).reduce(0, Integer::sum);
 
         Integer totalSeat = tables.stream().map(Table::getCapacity).reduce(0, Integer::sum);
         var peopleMustBeSuitable = new ValidationRule(
@@ -92,6 +84,7 @@ public class ReservationController {
         return ApiResponseEntity.success(updatedReservation);
     }
 
+    @Operation(summary = "Thêm bàn vào đặt bàn", description = "API này dùng để thêm bàn vào đặt bàn")
     @PostMapping("/{reservation_id}/tables")
     public ApiResponseEntity update(@PathVariable("reservation_id") Integer id, @Valid @RequestBody ReservationTableUpdateDTO request) throws Exception {
         Reservation reservation = reservationService.findOrFail(id);
@@ -103,6 +96,7 @@ public class ReservationController {
         return ApiResponseEntity.success(updatedReservation);
     }
 
+    @Operation(summary = "Xóa bàn khỏi đặt bàn", description = "API này dùng để xóa bàn khỏi đặt bàn")
     @DeleteMapping("/{reservation_id}/tables")
     public ApiResponseEntity deleteTables(@PathVariable("reservation_id") Integer id, @Valid @RequestBody ReservationTableUpdateDTO request) throws Exception {
         Reservation reservation = reservationService.findOrFail(id);

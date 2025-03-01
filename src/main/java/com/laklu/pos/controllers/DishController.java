@@ -8,14 +8,18 @@ import com.laklu.pos.dataObjects.response.DishResponse;
 import com.laklu.pos.entities.Dish;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.DishMapper;
+import com.laklu.pos.services.AttachmentService;
 import com.laklu.pos.services.DishService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.RuleValidator;
+import com.laklu.pos.validator.ValidationRule;
 import com.laklu.pos.validator.ValueExistIn;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.validation.Validator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +32,7 @@ public class DishController {
     private final DishPolicy dishPolicy;
     private final DishService dishService;
     private final DishMapper dishMapper;
+    private final AttachmentService attachmentService;
 
     @Operation(summary = "Lấy thông tin tất cả món ăn", description = "API này dùng để lấy danh sách tất cả món ăn")
     @GetMapping("/")
@@ -53,6 +58,7 @@ public class DishController {
         dish.setDescription(newDish.getDescription());
 
         Dish createdDish = dishService.createDish(dish);
+        this.attachmentService.saveAttachment(dish, newDish.getImageIds(), true);
 
         return ApiResponseEntity.success(createdDish);
     }
@@ -79,6 +85,7 @@ public class DishController {
         dishMapper.updateDishFromDto(partialUpdateDish, existingDish);
 
         Dish updatedDish = dishService.updateDish(existingDish);
+        this.attachmentService.saveAttachment(updatedDish, partialUpdateDish.getImageIds(), true);
 
         return ApiResponseEntity.success(DishResponse.fromEntity(updatedDish));
     }
@@ -96,13 +103,11 @@ public class DishController {
     }
 
     private void validateName(String name) {
-        ValueExistIn<String> rule = new ValueExistIn<>(
-                "Món ăn",
-                name,
-                (n) -> dishService.findByName(n).isEmpty()
+        ValidationRule nameMustBeUnique = new ValidationRule(
+                (v) -> dishService.findByName(name).isEmpty(),
+                "name",
+                "Tên món ăn đã tồn tại"
         );
-        if (!rule.isValid()) {
-            throw new IllegalArgumentException(rule.getMessage());
-        }
+        RuleValidator.validate(nameMustBeUnique);
     }
 }
