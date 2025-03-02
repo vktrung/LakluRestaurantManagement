@@ -14,9 +14,9 @@ public class LogResponse {
     private String details;
     private String message;
     private LocalDateTime createdAt;
-    private UserInfo userInfo;
+    private UserInfoResponse userInfo;
 
-    public LogResponse(Integer id, Integer staffId, String action, String target, String targetId, String details, String message, LocalDateTime createdAt, UserInfo userInfo) {
+    public LogResponse(Integer id, Integer staffId, String action, String target, String targetId, String details, String message, LocalDateTime createdAt, UserInfoResponse userInfo) {
         this.id = id;
         this.staffId = staffId;
         this.action = action;

@@ -24,11 +24,27 @@ public class SchedulePolicy implements Policy<Schedule> {
 
     @Override
     public boolean canView(UserPrincipal userPrincipal, Schedule schedule) {
-        return userPrincipal.hasPermission(PermissionAlias.LIST_SCHEDULE) || userPrincipal.getPersitentUser().getId() == schedule.getStaff().getId();
+        return userPrincipal.hasPermission(PermissionAlias.LIST_SCHEDULE) ||schedule.getStaffs().contains(userPrincipal.getPersitentUser());
     }
 
     @Override
     public boolean canList(UserPrincipal userPrincipal) {
-        return userPrincipal.hasAnyPermission(PermissionAlias.LIST_SCHEDULE);
+        return false;
+    }
+
+    public boolean canCreateCheckInQrCode(UserPrincipal userPrincipal) {
+        return userPrincipal.hasPermission(PermissionAlias.CREATE_SCHEDULE_CHECK_IN_QR_CODE);
+    }
+
+    public boolean canCreateCheckOutQrCode(UserPrincipal userPrincipal) {
+        return userPrincipal.hasPermission(PermissionAlias.CREATE_SCHEDULE_CHECK_OUT_QR_CODE);
+    }
+
+    public boolean canCheckIn(UserPrincipal userPrincipal, Schedule schedule) {
+        return schedule.getStaffs().contains(userPrincipal.getPersitentUser());
+    }
+
+    public boolean canCheckOut(UserPrincipal userPrincipal, Schedule schedule) {
+        return schedule.getStaffs().contains(userPrincipal.getPersitentUser());
     }
 }

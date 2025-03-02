@@ -32,8 +32,13 @@ app-setup:
 
 app:
   base:
+    secret: 3cfa76ef14937c1c0ea519f8fc057a80fcd04a7420f8e8bcd0a7567c272e007b
+    frontend: http://localhost:3015
     url: http://localhost:8080
     attachment-endpoint: api/v1/attachments
+    attendance-checkin: ${app.base.frontend}/checkin
+    attendance-checkout: ${app.base.frontend}/checkout
+    attendance-expire-time: 10
 
 web:
   cors:
