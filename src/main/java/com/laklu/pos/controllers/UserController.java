@@ -84,7 +84,7 @@ public class UserController {
         return ApiResponseEntity.success(new AuthUserResponse(new UserPrincipal(user)));
     }
 
-    @Operation(summary = "Cập nhật thông tin người dùng", description = "API này dùng để cập nhật thông tin người dùng")
+    @Operation(summary = "Cập nhật thông tin tất cả người dùng", description = "API này dùng để cập nhật thông tin người dùng")
     @PutMapping("/{id}")
     public ApiResponseEntity update(@PathVariable int id, @RequestBody @Validated UpdateUser updateUser) throws Exception {
         var existingUser = userService.findOrFail(id);
