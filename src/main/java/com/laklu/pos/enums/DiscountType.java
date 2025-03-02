@@ -4,5 +4,4 @@ public enum DiscountType {
     BIRTHDAY,
     ANNIVERSARY,
     MEMBERSHIP,
-    OTHER
 }

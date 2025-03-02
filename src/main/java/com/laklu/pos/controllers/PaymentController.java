@@ -5,8 +5,10 @@ import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.PaymentPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.SepayWebhookRequest;
+import com.laklu.pos.dataObjects.response.CashResponse;
 import com.laklu.pos.dataObjects.response.PaymentResponse;
 import com.laklu.pos.entities.Payment;
+import com.laklu.pos.enums.PaymentMethod;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.repositories.OrderRepository;
 import com.laklu.pos.repositories.PaymentRepository;
@@ -39,10 +41,11 @@ public class PaymentController {
 
     @GetMapping("/{id}")
     public ApiResponseEntity getPaymentById(@PathVariable int id) throws Exception {
-        RuleValidator.validate(new PaymentMustExist(id, paymentRepository));
         Payment payment = paymentService.findOrFail(id);
         PaymentResponse response = new PaymentResponse(
                 payment.getOrders().getId(),
+                payment.getAmountPaid(),
+                payment.getReceivedAmount(),
                 payment.getPaymentMethod(),
                 payment.getPaymentStatus(),
                 payment.getPaymentDate()
@@ -58,6 +61,8 @@ public class PaymentController {
         List<PaymentResponse> responses = paymentService.getAll().stream()
                 .map(payment -> new PaymentResponse(
                         payment.getOrders().getId(),
+                        payment.getAmountPaid(),
+                        payment.getReceivedAmount(),
                         payment.getPaymentMethod(),
                         payment.getPaymentStatus(),
                         payment.getPaymentDate()
@@ -66,13 +71,23 @@ public class PaymentController {
     }
 
     @PostMapping("/create")
-    public ApiResponseEntity createPayment(@Valid @RequestParam int orderId) throws Exception {
+    public ApiResponseEntity createPayment(@Valid @RequestParam int orderId, @RequestParam PaymentMethod paymentMethod) throws Exception {
         RuleValidator.validate(new OrderMustExist(orderId, orderRepository));
 
         Ultis.throwUnless(paymentPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
 
-        Payment payment = paymentService.createPayment(orderId);
+        Payment payment = paymentService.createPayment(orderId, paymentMethod);
         return ApiResponseEntity.success(payment, "Tạo hóa đơn thanh toán thành công");
+    }
+
+    @PostMapping("/{id}/checkout/cash")
+    public ApiResponseEntity processCashPayment(@PathVariable int id, @RequestParam BigDecimal receivedAmount) throws Exception {
+        RuleValidator.validate(new PaymentMustExist(id, paymentRepository));
+        Payment payment = paymentService.findOrFail(id);
+//        Ultis.throwUnless(paymentPolicy.canEdit(JwtGuard.userPrincipal(), payment), new ForbiddenException());
+        CashResponse response = paymentService.processCashPayment(payment, receivedAmount);
+        paymentService.processCashPayment(payment, receivedAmount);
+        return ApiResponseEntity.success(response, "Thanh toán tien mat thanh cong");
     }
 
     @GetMapping("/{id}/qr")
@@ -95,7 +110,7 @@ public class PaymentController {
             // Parse JSON thành SepayWebhookRequest
             ObjectMapper objectMapper = new ObjectMapper();
             SepayWebhookRequest payload = objectMapper.readValue(json, SepayWebhookRequest.class);
-            log.info("Đã parse payload: {}", payload);
+            log.info("parse payload: {}", payload);
 
             // Lấy paymentCode từ webhook
             String paymentCode = payload.getCode();
@@ -122,14 +137,5 @@ public class PaymentController {
             log.error("Lỗi xử lý JSON: ", e);
             return ApiResponseEntity.exception(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), "Lỗi xử lý webhook");
         }
-    }
-
-    @DeleteMapping("/{id}")
-    public ApiResponseEntity deletePayment(@PathVariable int id) throws Exception {
-        Payment payment = paymentService.findOrFail(id);
-        Ultis.throwUnless(paymentPolicy.canDelete(JwtGuard.userPrincipal(), payment), new ForbiddenException());
-
-        paymentService.deletePayment(payment);
-        return ApiResponseEntity.success("Xóa hóa đơn thanh toán thành công");
     }
 }

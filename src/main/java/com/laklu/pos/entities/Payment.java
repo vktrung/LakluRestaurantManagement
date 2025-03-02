@@ -26,6 +26,9 @@ public class Payment {
     @Column(name = "amount_paid")
     private BigDecimal amountPaid;
 
+    @Column(name = "received_amount")
+    private BigDecimal receivedAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_method")
     private PaymentMethod paymentMethod; // Enum payment_method

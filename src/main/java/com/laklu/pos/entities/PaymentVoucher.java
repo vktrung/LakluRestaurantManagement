@@ -18,5 +18,7 @@ public class PaymentVoucher {
     @JoinColumn(name = "payments_id", referencedColumnName = "id")
     private Payment payment;
 
-
+    @ManyToOne
+    @JoinColumn(name = "voucher_id", referencedColumnName = "id")
+    private Voucher voucher;
 }

@@ -10,11 +10,12 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class PaymentResponse {
+public class CashResponse {
     private Integer orderId;
     private BigDecimal amountPaid;
     private BigDecimal receivedAmount;
     private PaymentMethod paymentMethod;
     private PaymentStatus paymentStatus;
     private LocalDateTime paymentDate;
+    private BigDecimal change;
 }

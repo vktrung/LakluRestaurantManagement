@@ -1,7 +1,7 @@
 package com.laklu.pos.services;
 
-import com.laklu.pos.enums.PaymentMethod;
-import com.laklu.pos.enums.PaymentStatus;
+import com.laklu.pos.dataObjects.response.CashResponse;
+import com.laklu.pos.enums.*;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.*;
 import com.laklu.pos.entities.*;
@@ -27,7 +27,7 @@ public class PaymentService {
     private static final Random RANDOM = new Random();
     private static final BigDecimal FIXED_AMOUNT = BigDecimal.valueOf(10000);
 
-    public static String generatePaymentCode(){
+    public static String generatePaymentCode() {
         int number = RANDOM.nextInt(999999);
         return PREFIX + String.format("%06d", number);
     }
@@ -44,20 +44,45 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
-    public Payment createPayment(int orderId) {
+    public Payment createPayment(int orderId, PaymentMethod paymentMethod) {
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException());
 
         Payment payment = new Payment();
         payment.setOrders(order);
         payment.setAmountPaid(FIXED_AMOUNT);
-        payment.setPaymentMethod(PaymentMethod.TRANSFER);
+        payment.setReceivedAmount(null);
+        payment.setPaymentMethod(paymentMethod);
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
         payment.setUpdatedAt(LocalDateTime.now());
         payment.setCode(generatePaymentCode());
 
         return paymentRepository.save(payment);
+    }
+
+    @Transactional
+    public CashResponse processCashPayment(Payment payment, BigDecimal receivedAmount) {
+        BigDecimal orderAmount = payment.getAmountPaid();
+        if (receivedAmount.compareTo(orderAmount) < 0) {
+            throw new IllegalArgumentException("Số tiền nhận được không đủ để thanh toán");
+        }
+        BigDecimal change = receivedAmount.subtract(orderAmount);
+
+        payment.setReceivedAmount(receivedAmount);
+        payment.setUpdatedAt(LocalDateTime.now());
+        payment.setPaymentStatus(PaymentStatus.PAID);
+        paymentRepository.save(payment);
+        updateOrderStatus(payment.getOrders());
+        return new CashResponse(
+                payment.getOrders().getId(),
+                payment.getAmountPaid(),
+                payment.getReceivedAmount(),
+                payment.getPaymentMethod(),
+                payment.getPaymentStatus(),
+                payment.getPaymentDate(),
+                change
+        );
     }
 
     public String generateQrCode(int paymentId) {

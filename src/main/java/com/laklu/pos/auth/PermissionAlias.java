@@ -52,7 +52,13 @@ public enum PermissionAlias {
     CREATE_PAYMENT("payments:create", "Tạo hóa đơn thanh toán", PermissionGroup.PAYMENT),
     LIST_PAYMENT("payments:list", "Danh sách hóa đơn thanh toán", PermissionGroup.PAYMENT),
     VIEW_PAYMENT("payments:view", "Xem chi tiết hóa đơn thanh toán", PermissionGroup.PAYMENT),
-    DELETE_PAYMENT("payments:delete", "Xóa hóa đơn thanh toán", PermissionGroup.PAYMENT);
+    DELETE_PAYMENT("payments:delete", "Xóa hóa đơn thanh toán", PermissionGroup.PAYMENT),
+
+    CREATE_VOUCHER("vouchers:create", "Tạo voucher", PermissionGroup.VOUCHER),
+    UPDATE_VOUCHER("vouchers:update", "Sửa voucher", PermissionGroup.VOUCHER),
+    LIST_VOUCHER("vouchers:list", "Danh sách voucher", PermissionGroup.VOUCHER),
+    DELETE_VOUCHER("vouchers:delete", "Xóa voucher", PermissionGroup.VOUCHER),
+    VIEW_VOUCHER("vouchers:view", "Xem chi tiết voucher", PermissionGroup.VOUCHER);
 
     PermissionAlias(String alias, String name, PermissionGroup group) {
         this.alias = alias;

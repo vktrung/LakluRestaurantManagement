@@ -12,7 +12,8 @@ public enum PermissionGroup {
     TABLE("Table Permissions", "TABLE", "Quyền liên quan đến bàn"),
     RESERVATION("Reservation Permissions", "RESERVATION", "Quyền liên quan đến đặt chỗ"),
     SALARY_RATE("Salary Rate Permissions", "SALARY_RATE", "Quyền liên quan đến mức lương"),
-    PAYMENT("Payment Permissions", "PAYMENT", "Quyền liên quan đến thanh toán");
+    PAYMENT("Payment Permissions", "PAYMENT", "Quyền liên quan đến thanh toán"),
+    VOUCHER("Voucher Permissions", "VOUCHER", "Quyền liên quan đến voucher");
 
     private final String label;
     private final String alias;
