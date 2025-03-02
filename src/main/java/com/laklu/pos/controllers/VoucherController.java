@@ -6,6 +6,7 @@ import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.VoucherRequest;
 import com.laklu.pos.dataObjects.response.VoucherResponse;
 import com.laklu.pos.entities.*;
+import com.laklu.pos.enums.DiscountType;
 import com.laklu.pos.enums.VoucherStatus;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.VoucherService;
@@ -47,11 +48,12 @@ public class VoucherController {
 
     @PostMapping("/create")
     public ApiResponseEntity createVoucher(@Valid @RequestBody VoucherRequest request) throws Exception {
-//        Ultis.throwUnless(voucherPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+        Ultis.throwUnless(voucherPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+        DiscountType discountType = DiscountType.valueOf(request.getDiscountType().toUpperCase());
         Voucher voucher = new Voucher(
                 null,
                 request.getCode(),
-                request.getDiscountType(),
+                discountType,
                 request.getDiscountValue(),
                 request.getValidFrom(),
                 request.getValidUntil(),
@@ -66,9 +68,11 @@ public class VoucherController {
     @PostMapping("/update/{id}")
     public ApiResponseEntity updateVoucher(@PathVariable int id, @Valid @RequestBody VoucherRequest request) throws Exception {
         Voucher existingVoucher = voucherService.findOrFail(id);
+        DiscountType discountType = DiscountType.valueOf(request.getDiscountType().toUpperCase());
+
         Ultis.throwUnless(voucherPolicy.canEdit(JwtGuard.userPrincipal(), existingVoucher), new ForbiddenException());
         existingVoucher.setCode(request.getCode());
-        existingVoucher.setDiscountType(request.getDiscountType());
+        existingVoucher.setDiscountType(discountType);
         existingVoucher.setDiscountValue(request.getDiscountValue());
         existingVoucher.setValidFrom(request.getValidFrom());
         existingVoucher.setValidUntil(request.getValidUntil());

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.PaymentPolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
+import com.laklu.pos.dataObjects.request.PaymentRequest;
 import com.laklu.pos.dataObjects.request.SepayWebhookRequest;
 import com.laklu.pos.dataObjects.response.CashResponse;
 import com.laklu.pos.dataObjects.response.PaymentResponse;
@@ -42,6 +43,7 @@ public class PaymentController {
     @GetMapping("/{id}")
     public ApiResponseEntity getPaymentById(@PathVariable int id) throws Exception {
         Payment payment = paymentService.findOrFail(id);
+        Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
         PaymentResponse response = new PaymentResponse(
                 payment.getOrders().getId(),
                 payment.getAmountPaid(),
@@ -50,8 +52,6 @@ public class PaymentController {
                 payment.getPaymentStatus(),
                 payment.getPaymentDate()
         );
-        Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
-
         return ApiResponseEntity.success(response, "Lấy hóa đơn thành công");
     }
 
@@ -71,13 +71,22 @@ public class PaymentController {
     }
 
     @PostMapping("/create")
-    public ApiResponseEntity createPayment(@Valid @RequestParam int orderId, @RequestParam PaymentMethod paymentMethod) throws Exception {
+    public ApiResponseEntity createPayment(@Valid @RequestParam int orderId,
+                                           @RequestParam PaymentMethod paymentMethod,
+                                           @RequestParam(value = "Voucher-Code", required = false) String voucher) throws Exception {
         RuleValidator.validate(new OrderMustExist(orderId, orderRepository));
-
         Ultis.throwUnless(paymentPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
-
-        Payment payment = paymentService.createPayment(orderId, paymentMethod);
-        return ApiResponseEntity.success(payment, "Tạo hóa đơn thanh toán thành công");
+        PaymentRequest request = new PaymentRequest(orderId, paymentMethod, voucher);
+        Payment payment = paymentService.createPayment(request);
+        PaymentResponse response = new PaymentResponse(
+                payment.getOrders().getId(),
+                payment.getAmountPaid(),
+                payment.getReceivedAmount(),
+                payment.getPaymentMethod(),
+                payment.getPaymentStatus(),
+                payment.getPaymentDate()
+        );
+        return ApiResponseEntity.success(response, "Tạo hóa đơn thanh toán thành công");
     }
 
     @PostMapping("/{id}/checkout/cash")
@@ -85,8 +94,8 @@ public class PaymentController {
         RuleValidator.validate(new PaymentMustExist(id, paymentRepository));
         Payment payment = paymentService.findOrFail(id);
 //        Ultis.throwUnless(paymentPolicy.canEdit(JwtGuard.userPrincipal(), payment), new ForbiddenException());
-        CashResponse response = paymentService.processCashPayment(payment, receivedAmount);
-        paymentService.processCashPayment(payment, receivedAmount);
+        CashResponse response = paymentService.processCashPayment(id, receivedAmount);
+        paymentService.processCashPayment(id, receivedAmount);
         return ApiResponseEntity.success(response, "Thanh toán tien mat thanh cong");
     }
 

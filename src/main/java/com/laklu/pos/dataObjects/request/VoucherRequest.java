@@ -2,10 +2,7 @@ package com.laklu.pos.dataObjects.request;
 
 import com.laklu.pos.enums.DiscountType;
 import com.laklu.pos.enums.VoucherStatus;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -22,7 +19,8 @@ public class VoucherRequest {
     private String code;
 
     @NotNull(message = "Loại Voucher không được để trống")
-    private DiscountType discountType;
+    @Pattern(regexp = "BIRTHDAY|ANNIVERSARY|MEMBERSHIP", message = "Loại Voucher không hợp lệ")
+    private String discountType;
 
     @NotNull(message = "Giá trị Voucher không được để trống")
     @DecimalMin(value = "0.0", message = "Giá trị giảm giá phải lớn hơn 0")

@@ -1,14 +1,17 @@
 package com.laklu.pos.services;
 
+import com.laklu.pos.dataObjects.request.PaymentRequest;
 import com.laklu.pos.dataObjects.response.CashResponse;
 import com.laklu.pos.enums.*;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.*;
 import com.laklu.pos.entities.*;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -22,10 +25,11 @@ import java.util.Random;
 public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final OrderRepository orderRepository;
+    private final VoucherRepository voucherRepository;
     private static final String SEPAY_QR_URL = "https://qr.sepay.vn/img";
     private static final String PREFIX = "LL";
     private static final Random RANDOM = new Random();
-    private static final BigDecimal FIXED_AMOUNT = BigDecimal.valueOf(10000);
+    private static final BigDecimal FIXED_AMOUNT = BigDecimal.valueOf(100000);
 
     public static String generatePaymentCode() {
         int number = RANDOM.nextInt(999999);
@@ -44,15 +48,36 @@ public class PaymentService {
         return paymentRepository.findAll();
     }
 
-    public Payment createPayment(int orderId, PaymentMethod paymentMethod) {
-        Orders order = orderRepository.findById(orderId)
+    public Payment createPayment(PaymentRequest request) {
+        Orders order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new NotFoundException());
+
+        BigDecimal orderAmount = FIXED_AMOUNT;
+        BigDecimal discount = BigDecimal.ZERO;
+
+        if (request.getVoucherCode() != null && !request.getVoucherCode().isEmpty()) {
+            Optional<Voucher> voucherOpt = voucherRepository.findByCode(request.getVoucherCode());
+            if (voucherOpt.isEmpty()) {
+                throw new NotFoundException();
+            }
+
+            Voucher voucher = voucherOpt.get();
+            if (voucher.getStatus() == VoucherStatus.INACTIVE) {
+                throw new IllegalArgumentException("Voucher không còn hiệu lực");
+            }
+
+            discount = applyVoucherDiscount(orderAmount, voucher);
+            orderAmount = orderAmount.subtract(discount);
+
+            voucher.setStatus(VoucherStatus.USED);
+            voucherRepository.save(voucher);
+        }
 
         Payment payment = new Payment();
         payment.setOrders(order);
-        payment.setAmountPaid(FIXED_AMOUNT);
+        payment.setAmountPaid(orderAmount);
         payment.setReceivedAmount(null);
-        payment.setPaymentMethod(paymentMethod);
+        payment.setPaymentMethod(request.getPaymentMethod());
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
         payment.setUpdatedAt(LocalDateTime.now());
@@ -62,11 +87,18 @@ public class PaymentService {
     }
 
     @Transactional
-    public CashResponse processCashPayment(Payment payment, BigDecimal receivedAmount) {
+    public CashResponse processCashPayment(int paymentId, BigDecimal receivedAmount) {
+        Payment payment = findOrFail(paymentId);
+
+        if (payment.getPaymentMethod() != PaymentMethod.CASH) {
+            throw new IllegalArgumentException("Chỉ áp dụng cho thanh toán tiền mặt");
+        }
+
         BigDecimal orderAmount = payment.getAmountPaid();
         if (receivedAmount.compareTo(orderAmount) < 0) {
             throw new IllegalArgumentException("Số tiền nhận được không đủ để thanh toán");
         }
+
         BigDecimal change = receivedAmount.subtract(orderAmount);
 
         payment.setReceivedAmount(receivedAmount);
@@ -126,8 +158,11 @@ public class PaymentService {
         orderRepository.save(orders);
     }
 
-    @Transactional
-    public void deletePayment(Payment payment) {
-        paymentRepository.delete(payment);
+    private BigDecimal applyVoucherDiscount(BigDecimal totalAmount, Voucher voucher) {
+        if (voucher.getDiscountType() == DiscountType.PERCENTAGE) {
+            return totalAmount.multiply(voucher.getDiscountValue()).divide(BigDecimal.valueOf(100));
+        } else {
+            return voucher.getDiscountValue();
+        }
     }
 }
