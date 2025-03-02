@@ -38,6 +38,8 @@ public enum PermissionAlias {
     UPDATE_SCHEDULE("schedules:update", "Cập nhật lịch làm việc", PermissionGroup.SCHEDULE),
     LIST_SCHEDULE("schedules:list", "Xem danh sách lịch làm việc", PermissionGroup.SCHEDULE),
     DELETE_SCHEDULE("schedules:delete", "Xóa lịch làm việc", PermissionGroup.SCHEDULE),
+    CREATE_SCHEDULE_CHECK_IN_QR_CODE("schedules:create_check_in_qr_code", "Tạo mã QR điểm danh", PermissionGroup.SCHEDULE),
+    CREATE_SCHEDULE_CHECK_OUT_QR_CODE("schedules:create_check_out_qr_code", "Tạo mã QR Checkout", PermissionGroup.SCHEDULE),
 
     CREATE_SALARY_RATE("salary_rate:create", "Thêm mức lương", PermissionGroup.SALARY_RATE),
     UPDATE_SALARY_RATE("salary_rate:update", "Sửa mức lương", PermissionGroup.SALARY_RATE),
