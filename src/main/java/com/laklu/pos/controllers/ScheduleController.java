@@ -4,11 +4,14 @@ import com.laklu.pos.auth.JwtGuard;
 import com.laklu.pos.auth.policies.SchedulePolicy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewSchedule;
+import com.laklu.pos.dataObjects.request.ScheduleCheckInRequest;
+import com.laklu.pos.dataObjects.request.ScheduleCheckOutRequest;
 import com.laklu.pos.dataObjects.response.ScheduleResponse;
 import com.laklu.pos.entities.Schedule;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.services.ScheduleService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.valueObjects.UserPrincipal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -102,6 +105,33 @@ public class ScheduleController {
         var schedule = scheduleService.findOrFail(id);
         Ultis.throwUnless(schedulePolicy.canCreateCheckOutQrCode(JwtGuard.userPrincipal()), new ForbiddenException());
         return scheduleService.generateCheckOutCode(schedule);
+    }
+
+    @PostMapping("/schedule-check-in")
+    public ApiResponseEntity scheduleCheckIn(@RequestBody ScheduleCheckInRequest request) throws Exception {
+        Schedule schedule = scheduleService.findOrFail(request.getScheduleId());
+        UserPrincipal userPrincipal = scheduleService.getScheduleUser(request.getUsername(), request.getPassword());
+
+        // Kiểm tra quyền check in
+        Ultis.throwUnless(schedulePolicy.canCheckIn(userPrincipal, schedule), new ForbiddenException());
+        scheduleService.validateCheckInCode(String.valueOf(request.getScheduleId()), request.getExpiry(), request.getSignature());
+        scheduleService.createCheckInAttendance(schedule, userPrincipal.getPersitentUser());
+
+        return ApiResponseEntity.success("Check in thành công");
+    }
+
+
+    @PostMapping("/schedule-check-out")
+    public ApiResponseEntity scheduleCheckOut(@RequestBody ScheduleCheckOutRequest request) throws Exception {
+        Schedule schedule = scheduleService.findOrFail(request.getScheduleId());
+        UserPrincipal userPrincipal = scheduleService.getScheduleUser(request.getUsername(), request.getPassword());
+
+        // Kiểm tra quyền check in
+        Ultis.throwUnless(schedulePolicy.canCheckOut(userPrincipal, schedule), new ForbiddenException());
+        scheduleService.validateCheckInCode(String.valueOf(request.getScheduleId()), request.getExpiry(), request.getSignature());
+        scheduleService.checkOutAttendance(schedule, userPrincipal.getPersitentUser());
+
+        return ApiResponseEntity.success("Check out thành công");
     }
 
 }

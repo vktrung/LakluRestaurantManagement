@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Set;
 
 
@@ -57,6 +58,9 @@ public class User implements Identifiable<Integer> {
     )
     @Setter
     private Set<Role> roles;
+
+    @ManyToMany(mappedBy = "staffs")
+    private List<Schedule> schedules;
 
     public SalaryRate getSalaryRate() {
         return salaryRate != null ? salaryRate : null;

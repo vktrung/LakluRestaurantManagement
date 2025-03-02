@@ -31,10 +31,10 @@ public class Attendance {
     @Column(nullable = false)
     private Status status;
 
-    @Column(name = "clock_in", nullable = false)
+    @Column(name = "clock_in")
     private LocalTime clockIn;
 
-    @Column(name = "clock_out", nullable = false)
+    @Column(name = "clock_out")
     private LocalTime clockOut;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -46,6 +46,9 @@ public class Attendance {
     @ManyToOne
     @JoinColumn(name = "schedule_id", nullable = false)
     private Schedule schedule;
+
+    @Column(name = "note")
+    private String note;
 
     @PrePersist
     protected void onCreate() {

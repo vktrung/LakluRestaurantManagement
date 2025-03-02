@@ -1,27 +1,20 @@
 package com.laklu.pos.services;
 
 import com.laklu.pos.dataObjects.request.NewUser;
-import com.laklu.pos.dataObjects.response.UserInfo;
+import com.laklu.pos.dataObjects.response.UserInfoResponse;
 import com.laklu.pos.entities.Role;
 import com.laklu.pos.entities.SalaryRate;
 import com.laklu.pos.entities.User;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.RoleRepository;
 import com.laklu.pos.repositories.UserRepository;
-import com.laklu.pos.validator.RuleValidator;
-import com.laklu.pos.validator.UsernameMustBeUnique;
-import com.laklu.pos.valueObjects.UserPrincipal;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,9 +68,9 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public UserInfo getUserInfoById(Integer userId) {
+    public UserInfoResponse getUserInfoById(Integer userId) {
         User user = this.findOrFail(userId);
-        UserInfo userInfo = new UserInfo();
+        UserInfoResponse userInfo = new UserInfoResponse();
         userInfo.setId(user.getId());
         userInfo.setUsername(user.getUsername());
         userInfo.setEmail(user.getEmail());

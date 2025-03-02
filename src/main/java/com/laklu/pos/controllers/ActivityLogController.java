@@ -2,7 +2,7 @@ package com.laklu.pos.controllers;
 
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.response.LogResponse;
-import com.laklu.pos.dataObjects.response.UserInfo;
+import com.laklu.pos.dataObjects.response.UserInfoResponse;
 import com.laklu.pos.entities.ActivityLog;
 import com.laklu.pos.services.ActivityLogService;
 import com.laklu.pos.services.UserService;
@@ -55,7 +55,7 @@ public class ActivityLogController {
     }
 
     private LogResponse convertToLogResponse(ActivityLog activityLog) {
-        UserInfo userInfo = userService.getUserInfoById(activityLog.getStaffId());
+        UserInfoResponse userInfo = userService.getUserInfoById(activityLog.getStaffId());
         return new LogResponse(
                 activityLog.getId(),
                 activityLog.getStaffId(),

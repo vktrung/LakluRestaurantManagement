@@ -4,14 +4,21 @@ import com.google.zxing.WriterException;
 import com.laklu.pos.dataObjects.ScheduleCheckInCode;
 import com.laklu.pos.dataObjects.ScheduleCheckOutCode;
 import com.laklu.pos.dataObjects.request.NewSchedule;
+import com.laklu.pos.entities.Attendance;
 import com.laklu.pos.entities.Schedule;
 import com.laklu.pos.entities.User;
 import com.laklu.pos.exceptions.httpExceptions.BadRequestException;
 import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
+import com.laklu.pos.exceptions.httpExceptions.UnauthorizedException;
 import com.laklu.pos.mapper.ScheduleMapper;
+import com.laklu.pos.repositories.AttendanceRepository;
 import com.laklu.pos.repositories.ScheduleRepository;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.valueObjects.UserPrincipal;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -31,6 +38,10 @@ public class ScheduleService {
 
     private final SignedUrlGenerator signedUrlGenerator;
 
+    private final AuthenticationProvider daoAuthenticationProvider;
+
+    private final AttendanceRepository attendanceRepository;
+
     @Value("${app.base.attendance-checkin}")
     private String checkInEndpoint;
 
@@ -41,12 +52,14 @@ public class ScheduleService {
     private Long checkCodeExpiry;
 
 
-    public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, ScheduleMapper scheduleMapper, QRCodeGenerator qrCodeGenerator, SignedUrlGenerator signedUrlGenerator) {
+    public ScheduleService(ScheduleRepository scheduleRepository, UserService userService, ScheduleMapper scheduleMapper, QRCodeGenerator qrCodeGenerator, SignedUrlGenerator signedUrlGenerator, AuthenticationProvider daoAuthenticationProvider, AttendanceRepository attendanceRepository) {
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.scheduleMapper = scheduleMapper;
         this.qrCodeGenerator = qrCodeGenerator;
         this.signedUrlGenerator = signedUrlGenerator;
+        this.daoAuthenticationProvider = daoAuthenticationProvider;
+        this.attendanceRepository = attendanceRepository;
     }
 
     public List<Schedule> getAllSchedules() {
@@ -64,7 +77,7 @@ public class ScheduleService {
     public Schedule storeSchedule(NewSchedule newSchedule) {
         User staff = userService.findOrFail(newSchedule.getStaffId());
         Schedule schedule = scheduleMapper.toSchedule(newSchedule);
-        schedule.setStaff(staff);
+        schedule.addStaff(staff);
 
         return scheduleRepository.save(schedule);
     }
@@ -110,4 +123,32 @@ public class ScheduleService {
         signedUrlData.put("checkOut", "true");
         Ultis.throwUnless(this.signedUrlGenerator.isGenneratedSignedUrl(signedUrlData, expiry, signature), new BadRequestException());
     }
+
+    public UserPrincipal getScheduleUser(String username, String password) throws Exception {
+       var result = this.daoAuthenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+       Ultis.throwUnless(result != null, new UnauthorizedException());
+
+       return (UserPrincipal) result.getPrincipal();
+    }
+
+    public Attendance createCheckInAttendance(Schedule schedule, User user) {
+        Attendance attendance = new Attendance();
+        attendance.setSchedule(schedule);
+        attendance.setStaff(user);
+        attendance.setSchedule(schedule);
+        attendance.setClockIn(Ultis.getCurrentTime());
+        attendance.setStatus(Attendance.Status.PRESENT);
+
+        this.attendanceRepository.save(attendance);
+        return attendance;
+    }
+
+    public Attendance checkOutAttendance(Schedule schedule, User user) {
+        Attendance attendance = this.attendanceRepository.findByScheduleAndStaff(schedule, user).orElseThrow(NotFoundException::new);
+        attendance.setClockOut(Ultis.getCurrentTime());
+        attendance.setStatus(Attendance.Status.PRESENT);
+        this.attendanceRepository.save(attendance);
+        return attendance;
+    }
+
 }
