@@ -65,9 +65,7 @@ public class PaymentService {
             if (voucher.getStatus() == VoucherStatus.INACTIVE) {
                 throw new IllegalArgumentException("Voucher không còn hiệu lực");
             }
-
-            discount = applyVoucherDiscount(orderAmount, voucher);
-            orderAmount = orderAmount.subtract(discount);
+            orderAmount = applyVoucherDiscount(orderAmount, voucher);
 
             voucher.setStatus(VoucherStatus.USED);
             voucherRepository.save(voucher);
@@ -160,9 +158,12 @@ public class PaymentService {
 
     private BigDecimal applyVoucherDiscount(BigDecimal totalAmount, Voucher voucher) {
         if (voucher.getDiscountType() == DiscountType.PERCENTAGE) {
-            return totalAmount.multiply(voucher.getDiscountValue()).divide(BigDecimal.valueOf(100));
-        } else {
-            return voucher.getDiscountValue();
+            BigDecimal percentage = voucher.getDiscountValue().divide(BigDecimal.valueOf(100));
+            return totalAmount.multiply(BigDecimal.ONE.subtract(percentage));
+        } else if(voucher.getDiscountType() == DiscountType.FIXEDAMOUNT) {
+            return totalAmount.subtract(voucher.getDiscountValue().max(BigDecimal.ZERO));
+        }else {
+            return totalAmount;
         }
     }
 }

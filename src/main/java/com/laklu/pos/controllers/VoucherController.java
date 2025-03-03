@@ -49,11 +49,10 @@ public class VoucherController {
     @PostMapping("/create")
     public ApiResponseEntity createVoucher(@Valid @RequestBody VoucherRequest request) throws Exception {
         Ultis.throwUnless(voucherPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
-        DiscountType discountType = DiscountType.valueOf(request.getDiscountType().toUpperCase());
         Voucher voucher = new Voucher(
                 null,
                 request.getCode(),
-                discountType,
+                request.getDiscountType(),
                 request.getDiscountValue(),
                 request.getValidFrom(),
                 request.getValidUntil(),
@@ -68,11 +67,10 @@ public class VoucherController {
     @PostMapping("/update/{id}")
     public ApiResponseEntity updateVoucher(@PathVariable int id, @Valid @RequestBody VoucherRequest request) throws Exception {
         Voucher existingVoucher = voucherService.findOrFail(id);
-        DiscountType discountType = DiscountType.valueOf(request.getDiscountType().toUpperCase());
 
         Ultis.throwUnless(voucherPolicy.canEdit(JwtGuard.userPrincipal(), existingVoucher), new ForbiddenException());
         existingVoucher.setCode(request.getCode());
-        existingVoucher.setDiscountType(discountType);
+        existingVoucher.setDiscountType(request.getDiscountType());
         existingVoucher.setDiscountValue(request.getDiscountValue());
         existingVoucher.setValidFrom(request.getValidFrom());
         existingVoucher.setValidUntil(request.getValidUntil());

@@ -19,8 +19,7 @@ public class VoucherRequest {
     private String code;
 
     @NotNull(message = "Loại Voucher không được để trống")
-    @Pattern(regexp = "BIRTHDAY|ANNIVERSARY|MEMBERSHIP", message = "Loại Voucher không hợp lệ")
-    private String discountType;
+    private DiscountType discountType;
 
     @NotNull(message = "Giá trị Voucher không được để trống")
     @DecimalMin(value = "0.0", message = "Giá trị giảm giá phải lớn hơn 0")
