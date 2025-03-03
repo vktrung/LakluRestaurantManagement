@@ -74,7 +74,6 @@ public class PaymentController {
     public ApiResponseEntity createPayment(@Valid @RequestParam int orderId,
                                            @RequestParam PaymentMethod paymentMethod,
                                            @RequestParam(value = "Voucher-Code", required = false) String voucher) throws Exception {
-        RuleValidator.validate(new OrderMustExist(orderId, orderRepository));
         Ultis.throwUnless(paymentPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
         PaymentRequest request = new PaymentRequest(orderId, paymentMethod, voucher);
         Payment payment = paymentService.createPayment(request);
@@ -101,7 +100,6 @@ public class PaymentController {
 
     @GetMapping("/{id}/qr")
     public ApiResponseEntity generateQrCode(@PathVariable int id) throws Exception {
-        RuleValidator.validate(new PaymentMustExist(id, paymentRepository));
         Payment payment = paymentService.findOrFail(id);
         Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
 

@@ -28,12 +28,10 @@ public class PaymentService {
     private final VoucherRepository voucherRepository;
     private static final String SEPAY_QR_URL = "https://qr.sepay.vn/img";
     private static final String PREFIX = "LL";
-    private static final Random RANDOM = new Random();
     private static final BigDecimal FIXED_AMOUNT = BigDecimal.valueOf(100000);
 
-    public static String generatePaymentCode() {
-        int number = RANDOM.nextInt(999999);
-        return PREFIX + String.format("%06d", number);
+    public static String generatePaymentCode(int orderId) {
+        return PREFIX + String.format("%06d", orderId);
     }
 
     public Payment findOrFail(Integer id) {
@@ -53,7 +51,6 @@ public class PaymentService {
                 .orElseThrow(() -> new NotFoundException());
 
         BigDecimal orderAmount = FIXED_AMOUNT;
-        BigDecimal discount = BigDecimal.ZERO;
 
         if (request.getVoucherCode() != null && !request.getVoucherCode().isEmpty()) {
             Optional<Voucher> voucherOpt = voucherRepository.findByCode(request.getVoucherCode());
@@ -79,7 +76,7 @@ public class PaymentService {
         payment.setPaymentStatus(PaymentStatus.PENDING);
         payment.setCreatedAt(LocalDateTime.now());
         payment.setUpdatedAt(LocalDateTime.now());
-        payment.setCode(generatePaymentCode());
+        payment.setCode(generatePaymentCode(request.getOrderId()));
 
         return paymentRepository.save(payment);
     }
@@ -122,7 +119,7 @@ public class PaymentService {
         String description = payment.getCode();
         return SEPAY_QR_URL + "?bank=" + bank
                 + "&acc=" + account
-                + "&amount=" + FIXED_AMOUNT
+                + "&amount=" + payment.getAmountPaid()
                 + "&des=" + description
                 + "&paymentId=" + payment.getId();
     }
