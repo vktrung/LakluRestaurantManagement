@@ -17,9 +17,6 @@ import java.util.Optional;
 public class MenuItemService {
 
     private final MenuItemRepository menuItemRepository;
-    private final DishService dishService;
-    private final MenuService menuService;
-    private final CategoryService categoryService;
 
     public List<MenuItem> getAll() {
         return menuItemRepository.findAll();
@@ -30,12 +27,10 @@ public class MenuItemService {
     }
 
     public MenuItem createMenuItem(MenuItem menuItem) {
-        validateReferences(menuItem);
         return menuItemRepository.save(menuItem);
     }
 
     public MenuItem updateMenuItem(MenuItem menuItem) {
-        validateReferences(menuItem);
         return menuItemRepository.save(menuItem);
     }
 
@@ -43,20 +38,6 @@ public class MenuItemService {
         menuItemRepository.delete(menuItem);
     }
 
-    private void validateReferences(MenuItem menuItem) {
-        if (menuItem.getDish() != null && menuItem.getDish().getId() != null) {
-            Dish dish = dishService.findOrFail(menuItem.getDish().getId());
-            menuItem.setDish(dish);
-        }
-        if (menuItem.getMenu() != null && menuItem.getMenu().getId() != null) {
-            Menu menu = menuService.findOrFail(menuItem.getMenu().getId());
-            menuItem.setMenu(menu);
-        }
-        if (menuItem.getCategory() != null && menuItem.getCategory().getId() != null) {
-            Category category = categoryService.findOrFail(menuItem.getCategory().getId());
-            menuItem.setCategory(category);
-        }
-    }
 
     public MenuItem findOrFail(Integer id) {
         return findById(id)

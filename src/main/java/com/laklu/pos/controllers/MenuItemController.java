@@ -5,11 +5,17 @@ import com.laklu.pos.auth.policies.Policy;
 import com.laklu.pos.dataObjects.ApiResponseEntity;
 import com.laklu.pos.dataObjects.request.NewMenuItem;
 import com.laklu.pos.dataObjects.response.MenuItemResponse;
+import com.laklu.pos.entities.Dish;
+import com.laklu.pos.entities.Menu;
 import com.laklu.pos.entities.MenuItem;
 import com.laklu.pos.exceptions.httpExceptions.ForbiddenException;
 import com.laklu.pos.mapper.MenuItemMapper;
+import com.laklu.pos.services.DishService;
 import com.laklu.pos.services.MenuItemService;
+import com.laklu.pos.services.MenuService;
 import com.laklu.pos.uiltis.Ultis;
+import com.laklu.pos.validator.RuleValidator;
+import com.laklu.pos.validator.ValuableValidationRule;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
@@ -24,13 +30,20 @@ public class MenuItemController {
     private final Policy<MenuItem> menuItemPolicy; // Giả định có Policy cho MenuItem
     private final MenuItemService menuItemService;
     private final MenuItemMapper menuItemMapper;
+    private final DishService dishService;
+    private final MenuService menuService;
 
     @Operation(summary = "Tạo một mục trong thực đơn mới", description = "API này dùng để tạo một mục trong thực đơn mới")
     @PostMapping("/")
     public ApiResponseEntity createMenuItem(@RequestBody NewMenuItem newMenuItem) throws Exception {
         Ultis.throwUnless(menuItemPolicy.canCreate(JwtGuard.userPrincipal()), new ForbiddenException());
+        Dish dish = RuleValidator.getValidatedValue(new ValuableValidationRule<>("dishId", "Món ăn không tồn tại", () -> dishService.findById(newMenuItem.getDishId())));
+        Menu menu = RuleValidator.getValidatedValue(new ValuableValidationRule<>("menuId", "Thực đơn không tồn tại", () -> menuService.findById(newMenuItem.getMenuId())));
 
         MenuItem menuItem = menuItemMapper.toEntity(newMenuItem);
+
+        menuItem.setDish(dish);
+        menuItem.setMenu(menu);
         MenuItem createdMenuItem = menuItemService.createMenuItem(menuItem);
         return ApiResponseEntity.success(MenuItemResponse.fromEntity(createdMenuItem));
     }
@@ -49,6 +62,11 @@ public class MenuItemController {
     public ApiResponseEntity updateMenuItem(@PathVariable Integer id, @RequestBody NewMenuItem menuItemDetails) throws Exception {
         MenuItem existingMenuItem = menuItemService.findOrFail(id);
         Ultis.throwUnless(menuItemPolicy.canEdit(JwtGuard.userPrincipal(), existingMenuItem), new ForbiddenException());
+        Dish dish = RuleValidator.getValidatedValue(new ValuableValidationRule<>("dishId", "Món ăn không tồn tại", () -> dishService.findById(menuItemDetails.getDishId())));
+        Menu menu = RuleValidator.getValidatedValue(new ValuableValidationRule<>("menuId", "Thực đơn không tồn tại", () -> menuService.findById(menuItemDetails.getMenuId())));
+
+        existingMenuItem.setDish(dish);
+        existingMenuItem.setMenu(menu);
 
         menuItemMapper.updateMenuItemFromDto(menuItemDetails, existingMenuItem);
         MenuItem updatedMenuItem = menuItemService.updateMenuItem(existingMenuItem);
