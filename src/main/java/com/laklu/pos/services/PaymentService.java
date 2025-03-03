@@ -7,17 +7,14 @@ import com.laklu.pos.exceptions.httpExceptions.NotFoundException;
 import com.laklu.pos.repositories.*;
 import com.laklu.pos.entities.*;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -47,7 +44,7 @@ public class PaymentService {
     }
 
     public Payment createPayment(PaymentRequest request) {
-        Orders order = orderRepository.findById(request.getOrderId())
+        Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new NotFoundException());
 
         BigDecimal orderAmount = FIXED_AMOUNT;
@@ -69,7 +66,7 @@ public class PaymentService {
         }
 
         Payment payment = new Payment();
-        payment.setOrders(order);
+        payment.setOrder(order);
         payment.setAmountPaid(orderAmount);
         payment.setReceivedAmount(null);
         payment.setPaymentMethod(request.getPaymentMethod());
@@ -100,9 +97,9 @@ public class PaymentService {
         payment.setUpdatedAt(LocalDateTime.now());
         payment.setPaymentStatus(PaymentStatus.PAID);
         paymentRepository.save(payment);
-        updateOrderStatus(payment.getOrders());
+        updateOrderStatus(payment.getOrder());
         return new CashResponse(
-                payment.getOrders().getId(),
+                payment.getOrder().getId(),
                 payment.getAmountPaid(),
                 payment.getReceivedAmount(),
                 payment.getPaymentMethod(),
@@ -136,7 +133,7 @@ public class PaymentService {
 
         if ("SUCCESS".equals(paymentStatus)) {
             payment.setPaymentStatus(PaymentStatus.PAID);
-            updateOrderStatus(payment.getOrders());
+            updateOrderStatus(payment.getOrder());
         } else if ("FAILED".equals(paymentStatus)) {
             payment.setPaymentStatus(PaymentStatus.FAILED);
         } else {
@@ -148,9 +145,9 @@ public class PaymentService {
         log.info("PaymentId {} đã cập nhật thành {}", paymentCode, payment.getPaymentStatus());
     }
 
-    private void updateOrderStatus(Orders orders) {
-        orders.setUpdatedAt(LocalDateTime.now());
-        orderRepository.save(orders);
+    private void updateOrderStatus(Order order) {
+        order.setUpdatedAt(LocalDateTime.now());
+        orderRepository.save(order);
     }
 
     private BigDecimal applyVoucherDiscount(BigDecimal totalAmount, Voucher voucher) {

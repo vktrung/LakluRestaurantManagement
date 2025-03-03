@@ -21,7 +21,7 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "orders_id", referencedColumnName = "id")
-    private Orders orders;
+    private Order order;
 
     @Column(name = "amount_paid")
     private BigDecimal amountPaid;

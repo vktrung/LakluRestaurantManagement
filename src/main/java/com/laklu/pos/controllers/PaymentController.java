@@ -15,7 +15,6 @@ import com.laklu.pos.repositories.OrderRepository;
 import com.laklu.pos.repositories.PaymentRepository;
 import com.laklu.pos.services.PaymentService;
 import com.laklu.pos.uiltis.Ultis;
-import com.laklu.pos.validator.OrderMustExist;
 import com.laklu.pos.validator.PaymentMustExist;
 import com.laklu.pos.validator.RuleValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,7 +44,7 @@ public class PaymentController {
         Payment payment = paymentService.findOrFail(id);
         Ultis.throwUnless(paymentPolicy.canView(JwtGuard.userPrincipal(), payment), new ForbiddenException());
         PaymentResponse response = new PaymentResponse(
-                payment.getOrders().getId(),
+                payment.getOrder().getId(),
                 payment.getAmountPaid(),
                 payment.getReceivedAmount(),
                 payment.getPaymentMethod(),
@@ -60,7 +59,7 @@ public class PaymentController {
         Ultis.throwUnless(paymentPolicy.canList(JwtGuard.userPrincipal()), new ForbiddenException());
         List<PaymentResponse> responses = paymentService.getAll().stream()
                 .map(payment -> new PaymentResponse(
-                        payment.getOrders().getId(),
+                        payment.getOrder().getId(),
                         payment.getAmountPaid(),
                         payment.getReceivedAmount(),
                         payment.getPaymentMethod(),
@@ -78,7 +77,7 @@ public class PaymentController {
         PaymentRequest request = new PaymentRequest(orderId, paymentMethod, voucher);
         Payment payment = paymentService.createPayment(request);
         PaymentResponse response = new PaymentResponse(
-                payment.getOrders().getId(),
+                payment.getOrder().getId(),
                 payment.getAmountPaid(),
                 payment.getReceivedAmount(),
                 payment.getPaymentMethod(),
